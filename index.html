@@ -1,0 +1,2702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WOD Weights">
+<link rel="manifest" href="manifest.json">
+<title>WOD Weights — CrossFit Weight Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#111; --surface2:#1a1a1a; --border:#2a2a2a;
+  --accent:#e8ff00; --accent2:#ff4d00; --text:#f0f0f0; --text-dim:#888;
+  --text-muted:#444; --green:#00e676; --red:#ff4d00; --blue:#00b4ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:2px solid var(--accent);padding:14px 18px 10px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;letter-spacing:2px;line-height:1}
+.logo span{color:var(--accent)}
+.logo small{display:block;font-size:9px;font-weight:400;letter-spacing:4px;color:var(--text-dim);margin-top:2px}
+.unit-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.unit-toggle button{padding:6px 12px;background:none;border:none;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.unit-toggle button.active{background:var(--accent);color:#000}
+
+/* PROFILE PANEL */
+.profile-panel{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px}
+.profile-section-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px}
+.profile-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.profile-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.profile-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.pfield label{display:block;font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;font-family:'Barlow Condensed',sans-serif}
+.pfield select,.pfield input[type=number]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:13px}
+.pfield select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath fill='%23888' d='M5 7L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+.pfield select:focus,.pfield input:focus{outline:none;border-color:var(--accent)}
+.pfield input[type=number]{color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;text-align:center}
+
+/* ATHLETE SCORE BADGE */
+.athlete-score{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-top:10px}
+.score-bar-wrap{flex:1}
+.score-label{font-size:11px;letter-spacing:1.5px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;margin-bottom:4px}
+.score-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px;transition:width .6s ease,background .4s}
+.score-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;line-height:1;color:var(--accent)}
+.score-desc{font-size:12px;color:var(--text-dim);margin-top:2px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+
+/* 1RM PANEL */
+.orm-panel{background:var(--surface2);border-bottom:1px solid var(--border);padding:12px 18px}
+.orm-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.orm-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
+.orm-toggle-btn{font-size:11px;color:var(--accent);letter-spacing:1px;font-family:'Barlow Condensed',sans-serif}
+.orm-grid{display:none;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.orm-grid.open{display:grid}
+.orm-item{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px}
+.orm-item label{font-size:12px;color:var(--text-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.orm-item input{width:60px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);padding:4px 6px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-align:right}
+.orm-item input:focus{outline:none;border-color:var(--accent)}
+
+/* SEARCH + CATS */
+.search-bar{padding:12px 18px;display:flex;gap:8px;background:var(--bg);border-bottom:1px solid var(--border)}
+.search-bar input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:14px}
+.search-bar input::placeholder{color:var(--text-muted)}
+.search-bar input:focus{outline:none;border-color:var(--accent)}
+.cat-tabs{display:flex;overflow-x:auto;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;scrollbar-width:none}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{padding:10px 14px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cat-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* MOVEMENT CARDS */
+.movements-list{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.movement-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.movement-card.fav{border-color:var(--accent)}
+.card-header{display:flex;align-items:center;padding:12px 12px;gap:8px;cursor:pointer}
+.card-icon{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.card-name{flex:1}
+.card-name h3{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;line-height:1.1}
+.card-name .card-category{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.card-weight-preview{text-align:right;flex-shrink:0}
+.weight-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--accent);line-height:1}
+.weight-unit{font-size:10px;color:var(--text-dim);letter-spacing:1px}
+.weight-level{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px}
+.fav-btn{background:none;border:none;color:var(--text-muted);font-size:17px;cursor:pointer;padding:4px;flex-shrink:0}
+.fav-btn.active{color:var(--accent)}
+
+/* CARD BODY */
+.card-body{display:none;border-top:1px solid var(--border);padding:12px}
+.card-body.open{display:block}
+
+/* PERSONAL WEIGHT HIGHLIGHT */
+.personal-weight-box{background:rgba(232,255,0,0.06);border:1px solid rgba(232,255,0,0.3);border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.pw-main{flex:1}
+.pw-label{font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;margin-bottom:2px}
+.pw-value{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--accent);line-height:1}
+.pw-unit{font-size:12px;color:var(--text-dim)}
+.pw-breakdown{font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.6}
+.pw-relative{text-align:right;flex-shrink:0}
+.pw-rel-val{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--text-dim)}
+.pw-rel-label{font-size:10px;color:var(--text-muted);letter-spacing:1px}
+
+/* LEVELS GRID */
+.levels-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:12px}
+.level-cell{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 3px;text-align:center}
+.level-cell.current{border-color:var(--accent);background:rgba(232,255,0,0.07)}
+.lc-label{font-size:9px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;margin-bottom:3px}
+.lc-weight{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;line-height:1}
+.level-cell.current .lc-weight{color:var(--accent)}
+.lc-unit{font-size:9px;color:var(--text-muted)}
+
+/* ORM SECTION */
+.orm-section{background:var(--surface2);border-radius:8px;padding:11px;margin-bottom:11px}
+.orm-section-title{font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;margin-bottom:9px}
+.pct-bars{display:flex;flex-direction:column;gap:5px}
+.pct-row{display:flex;align-items:center;gap:7px}
+.pct-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--text-dim);width:26px;text-align:right}
+.pct-bar-wrap{flex:1;background:var(--border);border-radius:3px;height:5px;overflow:hidden}
+.pct-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .5s ease}
+.pct-weight{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);width:52px;text-align:right}
+
+/* TECHNIQUE */
+.technique-section{background:rgba(0,180,255,0.05);border:1px solid rgba(0,180,255,0.2);border-radius:8px;padding:11px}
+.technique-title{font-size:10px;letter-spacing:2px;color:var(--blue);text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;margin-bottom:7px}
+.technique-points{list-style:none}
+.technique-points li{font-size:12px;color:var(--text-dim);padding:2px 0;display:flex;gap:7px;line-height:1.4}
+.technique-points li::before{content:'›';color:var(--blue);font-weight:700;flex-shrink:0}
+
+/* BODY WEIGHT SCALES */
+.scales-list{margin-bottom:12px}
+.scale-row{display:flex;gap:8px;padding:6px 9px;border-radius:6px;margin-bottom:3px;border:1px solid var(--border);background:var(--surface2)}
+.scale-row.current{border-color:var(--accent);background:rgba(232,255,0,0.06)}
+.scale-lvl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;width:48px;flex-shrink:0}
+.scale-desc{font-size:12px;color:var(--text-dim)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav button{flex:1;background:none;border:none;color:var(--text-dim);padding:10px 0;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s}
+.bottom-nav button .nav-icon{font-size:19px}
+.bottom-nav button.active{color:var(--accent)}
+.main-content{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+
+/* FAV EMPTY */
+.fav-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+.fav-empty .fav-empty-icon{font-size:44px;margin-bottom:10px}
+
+/* CALC VIEW */
+.calc-view{padding:18px}
+.calc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.calc-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px}
+.calc-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.calc-row label{flex:1;font-size:13px;color:var(--text-dim)}
+.calc-row input{width:88px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);padding:7px 9px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;text-align:center}
+.calc-row input:focus{outline:none;border-color:var(--accent)}
+.calc-result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.calc-result-cell{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center}
+.cr-pct{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--text-dim);letter-spacing:1px;margin-bottom:3px}
+.cr-weight{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--accent);line-height:1}
+.cr-unit{font-size:10px;color:var(--text-muted)}
+
+/* INFO VIEW */
+.info-view{padding:18px}
+.info-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.info-section h2{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;letter-spacing:1px;color:var(--accent);margin-bottom:11px;text-transform:uppercase}
+.level-table{width:100%;border-collapse:collapse}
+.level-table th,.level-table td{padding:7px 9px;text-align:left;font-size:12px;border-bottom:1px solid var(--border)}
+.level-table th{font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:var(--text-dim);font-size:10px;text-transform:uppercase}
+.level-table td:first-child{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px}
+.badge-beginner{background:rgba(0,230,118,.15);color:var(--green)}
+.badge-intermediate{background:rgba(0,180,255,.15);color:var(--blue)}
+.badge-advanced{background:rgba(255,165,0,.15);color:#ffa500}
+.badge-rx{background:rgba(255,77,0,.15);color:var(--red)}
+.badge-elite{background:rgba(232,255,0,.15);color:var(--accent)}
+
+/* LEVEL COLORS */
+.lc-beginner{color:var(--green)}
+.lc-intermediate{color:var(--blue)}
+.lc-advanced{color:#ffa500}
+.lc-rx{color:var(--red)}
+.lc-elite{color:var(--accent)}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:36px 18px;color:var(--text-muted);font-size:13px;letter-spacing:.5px}
+
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.movement-card{animation:fadeSlide .22s ease both}
+
+/* PLATES */
+#plates-result{margin-top:11px;font-size:13px;color:var(--text-dim);line-height:1.9}
+
+/* SVG ANIMATION DIAGRAMS */
+.anim-diagram{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:12px;display:flex;align-items:center;gap:0;overflow:hidden}
+.anim-diagram svg{display:block;flex-shrink:0}
+.anim-diagram .phase-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;text-align:center;margin-top:4px}
+.anim-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
+/* CONTINUOUS ANIMATION WRAPPER */
+.cont-anim-wrap{background:var(--surface2);border:1px solid rgba(232,255,0,0.2);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.cont-anim-wrap svg{width:100%;height:auto;display:block}
+
+/* stick figure keyframes */
+@keyframes snatch-start{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes lift-up{0%{transform:translateY(18px) scaleY(.7)}60%{transform:translateY(0) scaleY(1)}100%{transform:translateY(0) scaleY(1)}}
+@keyframes bar-rise{0%{transform:translateY(16px)}60%{transform:translateY(0)}100%{transform:translateY(0)}}
+@keyframes bar-rise-full{0%{transform:translateY(22px)}65%{transform:translateY(0)}100%{transform:translateY(0)}}
+@keyframes squat-down{0%,100%{transform:translateY(0)}45%,55%{transform:translateY(10px)}}
+@keyframes torso-squat{0%,100%{transform:rotate(0deg)}45%,55%{transform:rotate(18deg)}}
+@keyframes arm-press{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes kb-arc{0%{transform:rotate(-30deg) translateY(0)}50%{transform:rotate(20deg) translateY(-6px)}100%{transform:rotate(-30deg) translateY(0)}}
+@keyframes dead-hinge{0%,100%{transform:rotate(0deg)}40%,60%{transform:rotate(30deg)}}
+@keyframes dead-bar{0%,100%{transform:translateY(0)}40%,60%{transform:translateY(12px)}}
+@keyframes wb-squat{0%,100%{transform:scaleY(1) translateY(0)}40%{transform:scaleY(.75) translateY(8px)}}
+@keyframes wb-ball{0%,100%{transform:translateY(0)}40%{transform:translateY(18px)}70%{transform:translateY(-30px)}}
+@keyframes pullup-move{0%,100%{transform:translateY(0)}45%,55%{transform:translateY(-16px)}}
+@keyframes ttb-legs{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-80deg)}}
+@keyframes hspu-dip{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes swing-torso{0%,100%{transform:rotate(35deg)}50%{transform:rotate(-5deg)}}
+@keyframes swing-arms{0%,100%{transform:rotate(30deg)}50%{transform:rotate(-50deg)}}
+@keyframes blink-none{}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">WOD<span>WEIGHTS</span><small>CROSSFIT CALCULATOR</small></div>
+  <div class="unit-toggle">
+    <button id="btn-kg" class="active" onclick="setUnit('kg')">KG</button>
+    <button id="btn-lb" onclick="setUnit('lb')">LB</button>
+  </div>
+</header>
+
+<div class="main-content">
+
+<!-- VIEW MOVIMIENTOS -->
+<div id="view-main" class="view active">
+
+  <!-- PERFIL -->
+  <div class="profile-panel">
+    <div class="profile-section-title">👤 Perfil del atleta</div>
+
+    <div class="profile-grid-3">
+      <div class="pfield">
+        <label>Género</label>
+        <select id="sel-gender" onchange="updateView()">
+          <option value="M">♂ Masculino</option>
+          <option value="F">♀ Femenino</option>
+        </select>
+      </div>
+      <div class="pfield">
+        <label>Categoría edad</label>
+        <select id="sel-age" onchange="updateView()">
+          <option value="sub18">Sub-18</option>
+          <option value="18-34" selected>18–34</option>
+          <option value="35-39">35–39</option>
+          <option value="40-44">40–44</option>
+          <option value="45-49">45–49</option>
+          <option value="50-54">50–54</option>
+          <option value="55-59">55–59</option>
+          <option value="60-64">60–64</option>
+          <option value="65+">65+</option>
+        </select>
+      </div>
+      <div class="pfield">
+        <label>Nivel</label>
+        <select id="sel-level" onchange="updateView()">
+          <option value="beginner">Principiante</option>
+          <option value="intermediate" selected>Intermedio</option>
+          <option value="advanced">Avanzado</option>
+          <option value="rx">Rx</option>
+          <option value="elite">Elite</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="profile-grid-4">
+      <div class="pfield">
+        <label>Peso <span id="weight-unit-label">kg</span></label>
+        <input type="number" id="inp-bw" placeholder="75" min="30" max="200" oninput="updateView()">
+      </div>
+      <div class="pfield">
+        <label>Talla cm</label>
+        <input type="number" id="inp-height" placeholder="175" min="140" max="220" oninput="updateView()">
+      </div>
+      <div class="pfield" style="grid-column:span 2">
+        <label>Edad exacta</label>
+        <input type="number" id="inp-age" placeholder="35" min="12" max="80" oninput="syncAgeCategory()">
+      </div>
+    </div>
+
+    <div class="athlete-score" id="athlete-score-box" style="display:none">
+      <div class="score-bar-wrap">
+        <div class="score-label">Índice fuerza relativa estimado</div>
+        <div class="score-bar"><div class="score-bar-fill" id="score-bar-fill"></div></div>
+        <div class="score-desc" id="score-desc">—</div>
+      </div>
+      <div>
+        <div class="score-num" id="score-num">—</div>
+        <div class="score-desc" style="text-align:right">IFR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1RM PANEL -->
+  <div class="orm-panel">
+    <div class="orm-header" onclick="toggleORM()">
+      <span class="orm-title">📊 Mis 1RM personales</span>
+      <span class="orm-toggle-btn" id="orm-toggle-label">▼ ABRIR</span>
+    </div>
+    <div class="orm-grid" id="orm-grid">
+      <div class="orm-item"><label>Back Squat</label><input type="number" id="orm-backsquat" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Front Squat</label><input type="number" id="orm-frontsquat" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Deadlift</label><input type="number" id="orm-deadlift" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Clean</label><input type="number" id="orm-clean" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Snatch</label><input type="number" id="orm-snatch" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>C&amp;Jerk</label><input type="number" id="orm-cjerk" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Press</label><input type="number" id="orm-press" placeholder="0" oninput="updateView()"></div>
+      <div class="orm-item"><label>Thruster</label><input type="number" id="orm-thruster" placeholder="0" oninput="updateView()"></div>
+    </div>
+  </div>
+
+  <!-- SEARCH + CATS -->
+  <div class="search-bar">
+    <input type="search" id="search-input" placeholder="🔍  Buscar movimiento..." oninput="filterMovements()">
+  </div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="movements-list" id="movements-list"></div>
+</div>
+
+<!-- VIEW FAVORITOS -->
+<div id="view-favs" class="view">
+  <div class="movements-list" id="fav-list"></div>
+  <div class="fav-empty" id="fav-empty" style="display:none">
+    <div class="fav-empty-icon">⭐</div>
+    <p>Toca ★ en cualquier movimiento<br>para añadirlo a favoritos</p>
+  </div>
+</div>
+
+<!-- VIEW CALC -->
+<div id="view-calc" class="view">
+  <div class="calc-view">
+    <div class="calc-card">
+      <div class="calc-title">⚖️ Calculadora % 1RM</div>
+      <div class="calc-row">
+        <label>Mi 1RM</label>
+        <input type="number" id="calc-orm" placeholder="100" oninput="calcUpdate()">
+        <span style="font-size:12px;color:var(--text-dim)" id="calc-unit-label">kg</span>
+      </div>
+      <div class="calc-result-grid" id="calc-grid"></div>
+    </div>
+    <div class="calc-card">
+      <div class="calc-title">🔄 Conversor kg ↔ lb</div>
+      <div class="calc-row">
+        <label>Kilogramos</label>
+        <input type="number" id="conv-kg" placeholder="60" oninput="convFromKg()">
+        <span style="font-size:12px;color:var(--text-dim)">kg</span>
+      </div>
+      <div class="calc-row">
+        <label>Libras</label>
+        <input type="number" id="conv-lb" placeholder="132" oninput="convFromLb()">
+        <span style="font-size:12px;color:var(--text-dim)">lb</span>
+      </div>
+    </div>
+    <div class="calc-card">
+      <div class="calc-title">🏋️ Platos en barra</div>
+      <div class="calc-row">
+        <label>Peso objetivo</label>
+        <input type="number" id="plates-target" placeholder="80" oninput="calcPlates()">
+        <span style="font-size:12px;color:var(--text-dim)" id="plates-unit">kg</span>
+      </div>
+      <div id="plates-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW INFO -->
+<div id="view-info" class="view">
+  <div class="info-view">
+    <div class="info-section">
+      <h2>Cómo se calculan los pesos</h2>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:10px">
+        La app usa una fórmula personalizada que combina <strong style="color:var(--text)">cuatro factores</strong>:
+      </p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;border-left:3px solid var(--accent)">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--accent)">1. Peso base por nivel</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Referencia estándar CrossFit Games para hombre 18-34, nivel dado</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;border-left:3px solid var(--blue)">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--blue)">2. Factor de edad</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Reducción progresiva según categoría Masters oficial CF Games</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;border-left:3px solid var(--green)">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--green)">3. Factor de peso corporal</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Tu peso ÷ peso referencia (75kg M / 60kg F) elevado a 0.67 (ley alométrica)</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px 12px;border-left:3px solid #ffa500">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:#ffa500">4. Factor de estatura</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:3px">Ajuste de palancas biomecánicas: tallas altas penalizan levantamientos olímpicos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2>Categorías Masters oficiales CF</h2>
+      <table class="level-table">
+        <tr><th>Categoría</th><th>Factor edad</th><th>Descripción</th></tr>
+        <tr><td>Sub-18</td><td style="color:var(--blue)">×0.72</td><td style="font-size:11px;color:var(--text-dim)">Desarrollo físico, técnica primero</td></tr>
+        <tr><td>18–34</td><td style="color:var(--green)">×1.00</td><td style="font-size:11px;color:var(--text-dim)">Peak de rendimiento</td></tr>
+        <tr><td>35–39</td><td style="color:var(--text)">×0.97</td><td style="font-size:11px;color:var(--text-dim)">Masters — inicio descenso leve</td></tr>
+        <tr><td>40–44</td><td style="color:var(--text)">×0.93</td><td style="font-size:11px;color:var(--text-dim)">Masters 40</td></tr>
+        <tr><td>45–49</td><td style="color:#ffa500">×0.88</td><td style="font-size:11px;color:var(--text-dim)">Masters 45</td></tr>
+        <tr><td>50–54</td><td style="color:#ffa500">×0.83</td><td style="font-size:11px;color:var(--text-dim)">Masters 50</td></tr>
+        <tr><td>55–59</td><td style="color:var(--red)">×0.77</td><td style="font-size:11px;color:var(--text-dim)">Masters 55</td></tr>
+        <tr><td>60–64</td><td style="color:var(--red)">×0.71</td><td style="font-size:11px;color:var(--text-dim)">Masters 60</td></tr>
+        <tr><td>65+</td><td style="color:var(--red)">×0.65</td><td style="font-size:11px;color:var(--text-dim)">Masters 65+</td></tr>
+      </table>
+    </div>
+
+    <div class="info-section">
+      <h2>Niveles CrossFit</h2>
+      <table class="level-table">
+        <tr><th>Nivel</th><th>DL referencia ♂</th><th>Descripción</th></tr>
+        <tr><td><span class="badge badge-beginner">PRINCIPIANTE</span></td><td style="color:var(--green);font-family:'Barlow Condensed';font-size:14px">60 kg</td><td style="font-size:11px;color:var(--text-dim)">Técnica básica, sin tiempo</td></tr>
+        <tr><td><span class="badge badge-intermediate">INTERMEDIO</span></td><td style="color:var(--blue);font-family:'Barlow Condensed';font-size:14px">100 kg</td><td style="font-size:11px;color:var(--text-dim)">Completa WODs estándar</td></tr>
+        <tr><td><span class="badge badge-advanced">AVANZADO</span></td><td style="color:#ffa500;font-family:'Barlow Condensed';font-size:14px">140 kg</td><td style="font-size:11px;color:var(--text-dim)">Peso significativo, buena eficiencia</td></tr>
+        <tr><td><span class="badge badge-rx">RX</span></td><td style="color:var(--red);font-family:'Barlow Condensed';font-size:14px">162 kg</td><td style="font-size:11px;color:var(--text-dim)">Pesos prescritos oficiales WODs</td></tr>
+        <tr><td><span class="badge badge-elite">ELITE</span></td><td style="color:var(--accent);font-family:'Barlow Condensed';font-size:14px">200+ kg</td><td style="font-size:11px;color:var(--text-dim)">Competidor Games/Regionals</td></tr>
+      </table>
+    </div>
+
+    <div class="info-section">
+      <h2>Sobre WOD Weights</h2>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.7">
+        Funciona <strong style="color:var(--accent)">100% offline</strong> como PWA instalable.<br>
+        Todos tus datos se guardan <strong style="color:var(--text)">localmente</strong> en tu dispositivo.<br>
+        Categorías Masters según estándar oficial <strong style="color:var(--text)">CrossFit Games 2024</strong>.<br><br>
+        Los pesos son <strong style="color:var(--text)">referencias orientativas</strong>. Consulta siempre a tu coach.
+      </p>
+    </div>
+  </div>
+</div>
+
+</div><!-- main-content -->
+
+<nav class="bottom-nav">
+  <button id="nav-main" class="active" onclick="showView('main')"><span class="nav-icon">🏋️</span>Movimientos</button>
+  <button id="nav-favs" onclick="showView('favs')"><span class="nav-icon">⭐</span>Favoritos</button>
+  <button id="nav-calc" onclick="showView('calc')"><span class="nav-icon">⚖️</span>Calc</button>
+  <button id="nav-info" onclick="showView('info')"><span class="nav-icon">ℹ️</span>Info</button>
+</nav>
+
+<script>
+// ══════════════════════════════════
+// DATA
+// ══════════════════════════════════
+
+const CATEGORIES = ['Todos','🤸 Gimnasia','🏅 Halterofilia','💪 Fuerza','🫀 Cardio'];
+const LEVELS = ['beginner','intermediate','advanced','rx','elite'];
+const LEVEL_LABELS = {beginner:'Princ.',intermediate:'Inter.',advanced:'Avanz.',rx:'Rx',elite:'Elite'};
+const LEVEL_COLORS = {beginner:'lc-beginner',intermediate:'lc-intermediate',advanced:'lc-advanced',rx:'lc-rx',elite:'lc-elite'};
+
+// Base weights KG — male 18-34 at 75kg / 175cm — [beginner,intermediate,advanced,rx,elite]
+const MOVEMENTS = [
+
+  // ── GIMNASIA (Peso Corporal) ──────────────────────────
+  { id:'airsquat', name:'Air Squat', cat:'🤸 Gimnasia', icon:'🦵',
+    isBodyweight:true,
+    scales:{beginner:'Sentadilla asistida (TRX/cajón)',intermediate:'Air squat completo con buena forma',advanced:'Air squat rápido, sets grandes',rx:'150+ reps sin parar, técnica perfecta',elite:'Pistol squat dominado'},
+    technique:['Pies ancho de caderas, puntas ligeramente afuera','Brazos al frente como contrapeso al bajar','Cadera desciende por debajo de las rodillas (ATF)','Rodillas siguen la línea de los pies — no colapsar hacia adentro','Talones en el suelo durante todo el movimiento','Mirada al frente, no al suelo'] },
+
+  { id:'pushup', name:'Push-up', cat:'🤸 Gimnasia', icon:'💪',
+    isBodyweight:true,
+    scales:{beginner:'Rodillas en suelo / inclinadas en cajón',intermediate:'Push-up estricto en suelo',advanced:'Sets de 20+ sin parar',rx:'Push-up con pecho al suelo (chest-to-floor)',elite:'Archer push-up / Push-up con peso'},
+    technique:['Manos ligeramente más anchas que hombros','Cuerpo en línea recta: cabeza-cadera-talones (plancha)','Codos a 45° del cuerpo — no abiertos en "T"','Pecho toca el suelo en cada repetición','Lockout completo de codos arriba','Core activado: no dejar caer la cadera'] },
+
+  { id:'pullup', name:'Pull-up', cat:'🤸 Gimnasia', icon:'🏋️',
+    isBodyweight:true,
+    scales:{beginner:'Ring rows / Pull-up asistido con banda',intermediate:'Kipping pull-up',advanced:'Butterfly kipping',rx:'Chest-to-Bar (C2B)',elite:'C2B + Pull-up lastrado'},
+    technique:['Dead hang completo antes de cada rep (strict)','Kipping: balanceo del cuerpo para ganar impulso','Butterfly: patada circular continua — más eficiente en sets largos','C2B: el pecho debe tocar la barra en cada rep','Grip pronado (overhand), manos ancho de hombros','Hombros activos al colgar — nunca escápulas totalmente relajadas'] },
+
+  { id:'c2b', name:'Chest-to-Bar (C2B)', cat:'🤸 Gimnasia', icon:'🎯',
+    isBodyweight:true,
+    scales:{beginner:'Pull-up estándar con banda',intermediate:'Pull-up kipping con chin over bar',advanced:'C2B kipping 5-10 reps',rx:'C2B en sets de 10+ sin parar',elite:'C2B butterfly unbroken'},
+    technique:['Grip ligeramente más ancho que en pull-up estándar','Kip más agresivo que en pull-up — más impulso de cadera','El pecho (no barbilla) debe tocar la barra','Mantener tensión en el descent para el siguiente kip','Respiración rítmica: exhalar al subir','Escápulas retraídas al contacto con la barra'] },
+
+  { id:'toes2bar', name:'Toes-to-Bar (T2B)', cat:'🤸 Gimnasia', icon:'🤸',
+    isBodyweight:true,
+    scales:{beginner:'Hanging knee raises / Sit-ups',intermediate:'Kipping knee raises',advanced:'Kipping T2B singles',rx:'T2B en sets sin parar',elite:'T2B butterfly continua'},
+    technique:['Agarre firme, manos ancho de hombros','Kip inicial: balancear caderas hacia adelante','Comprimir core al elevar las piernas hacia la barra','Ambos pies tocan la barra simultáneamente','Controlar el descenso para encadenar el siguiente kip','Brazos rectos durante todo el movimiento'] },
+
+  { id:'burpee', name:'Burpee', cat:'🤸 Gimnasia', icon:'🔥',
+    isBodyweight:true,
+    scales:{beginner:'Burpee sin salto (step-out)',intermediate:'Burpee estándar con salto',advanced:'Burpee box jump over',rx:'Bar-facing burpee (saltar la barra)',elite:'Burpee muscle-up'},
+    technique:['Tirarse al suelo con control — no caer de golpe','Pecho y caderas tocan el suelo simultáneamente','Subir con un push-up o step-up (ambos válidos en WOD)','Salto con palmas sobre la cabeza (estándar CF)','Mantener ritmo constante — es un ejercicio de pace','Respiración: exhalar en cada salto'] },
+
+  { id:'boxjump', name:'Box Jump', cat:'🤸 Gimnasia', icon:'📦',
+    isBodyweight:true,
+    scales:{beginner:'Step-up al cajón (no saltar)',intermediate:'Box jump 50cm (♂) / 40cm (♀)',advanced:'Box jump 60cm (♂) / 50cm (♀)',rx:'Box jump 70cm (♂) / 60cm (♀)',elite:'Box jump 80cm+ / Depth jump'},
+    equipment:'Cajón de madera/metal: 50, 60 o 70cm',
+    technique:['Stance ligeramente más ancho que caderas','Flexión de rodillas y balanceo de brazos antes del salto','Saltar con ambos pies simultáneamente','Aterrizar con toda la planta del pie encima del cajón','Extender caderas completamente al subir (lockout)','Bajar saltando o en step-down para proteger los tendones'] },
+
+  { id:'hspu', name:'Handstand Push-up (HSPU)', cat:'🤸 Gimnasia', icon:'🙃',
+    isBodyweight:true,
+    scales:{beginner:'Pike push-ups / Box HSPU',intermediate:'HSPU kipping contra la pared',advanced:'Strict HSPU',rx:'Kipping HSPU en sets + Déficit 5cm',elite:'Déficit HSPU 15–20cm + Handstand Walk'},
+    technique:['Manos a ~30cm de la pared, separadas ancho de hombros','Cabeza forma triángulo con las manos al apoyarla','Core activo: no arquear la espalda en exceso','Kipping: usar las caderas para generar impulso hacia arriba','Lockout completo al final: codos y hombros extendidos','Déficit: AbMat(s) o platos bajo las manos amplían el rango'] },
+
+  { id:'muscleup', name:'Muscle-up (BMU / RMU)', cat:'🤸 Gimnasia', icon:'🌟',
+    isBodyweight:true,
+    scales:{beginner:'Ring rows + Dips por separado',intermediate:'Jumping muscle-up / Banded MU',advanced:'Muscle-up estricto (1-3 reps)',rx:'Kipping MU en sets (Bar o Rings)',elite:'Muscle-up unbroken 10+ / Strict RMU'},
+    technique:['Agarre falso (false grip) para RMU: muñeca sobre el aro','Kip agresivo: swing hacia atrás → explosión de cadera hacia arriba','Transición: pasar de pull a dip cuando el pecho supera la barra/aros','Fase de dip: codos detrás, presionar hasta lockout completo','BMU: el pecho toca la barra antes de la transición','El ejercicio más técnicamente exigente de la gimnasia CF'] },
+
+  { id:'pistol', name:'Pistol Squat', cat:'🤸 Gimnasia', icon:'🦵',
+    isBodyweight:true,
+    scales:{beginner:'Sentadilla asistida a una pierna (TRX/cajón)',intermediate:'Pistol con contrapeso o banda',advanced:'Pistol squat libre x5 cada pierna',rx:'Pistol en WOD con fluidez',elite:'Pistol lastrado / Pistol en cajón'},
+    technique:['Pie de apoyo completamente plano en el suelo','Pierna libre extendida al frente — no tocar el suelo','Cadera desciende hasta la pantorrilla (rango completo)','Brazos al frente como contrapeso','Mantener el torso lo más vertical posible','Requiere movilidad de tobillo, cadera y flexores de cadera'] },
+
+  // ── HALTEROFILIA OLÍMPICA ─────────────────────────────
+  { id:'snatch', name:'Snatch (Arrancada)', cat:'🏅 Halterofilia', icon:'🏅',
+    base:{ M:[30,50,75,102,120], F:[20,35,52,70,83] },
+    ormKey:'snatch', ormPct:[70,80,85,90,95],
+    heightSensitivity:-0.15,
+    technique:['Stance ancho de caderas, grip más amplio que hombros','Primera tracción lenta y controlada — barra pegada al cuerpo','Segunda tracción explosiva: triple extensión tobillo-rodilla-cadera','Codos altos en el tirón — codo por encima de la muñeca','Recepción activa: presionar la barra hacia arriba al caer','Core tenso durante todo el movimiento'] },
+
+  { id:'clean', name:'Clean (Cargada)', cat:'🏅 Halterofilia', icon:'💪',
+    base:{ M:[40,65,95,125,150], F:[27,45,65,85,102] },
+    ormKey:'clean', ormPct:[70,80,85,90,95],
+    heightSensitivity:-0.12,
+    technique:['Salida igual al Deadlift: espalda recta, caderas abajo','Primera tracción: mantener ángulo del torso hasta pasar rodillas','Segunda tracción: extensión explosiva + encogimiento de hombros','Recepción en front rack: codos altos, barra sobre clavículas','Power Clean: recibir de pie. Squat Clean: bajar en sentadilla','Stance de pies: posición de sentadilla al recibir'] },
+
+  { id:'cjerk', name:'Clean & Jerk', cat:'🏅 Halterofilia', icon:'🥇',
+    base:{ M:[35,60,90,115,140], F:[24,42,62,78,96] },
+    ormKey:'cjerk', ormPct:[70,80,85,90,95],
+    heightSensitivity:-0.10,
+    technique:['Realizar el Clean completo primero','Dip en Jerk: corto (~10cm), recto, sin inclinar el torso','Drive explosivo desde piernas — no de brazos','Split o Power Jerk: pies se separan adelante/atrás','Bloquear codos completamente en la recepción overhead','Juntar pies al terminar: pie trasero adelante, luego delantero'] },
+
+  // ── FUERZA ────────────────────────────────────────────
+  { id:'deadlift', name:'Deadlift', cat:'💪 Fuerza', icon:'⚡',
+    base:{ M:[60,100,140,162,200], F:[40,70,97,112,140] },
+    ormKey:'deadlift', ormPct:[60,70,80,87,95],
+    heightSensitivity:0.05,
+    technique:['Pies ancho de caderas, barra sobre los metatarsos','Agarre doble overhand o mixto para cargas pesadas','Espalda completamente recta: NO redondear la lumbar','Tensión antes de levantar: "separar el suelo" con los pies','Barra sube pegada a espinillas y muslos','Bloqueo final: extensión completa de cadera — no hiperextensión'] },
+
+  { id:'thruster', name:'Thruster', cat:'💪 Fuerza', icon:'🔥',
+    base:{ M:[35,52,75,95,120], F:[24,36,52,65,83] },
+    ormKey:'thruster', ormPct:[65,75,82,90,95],
+    heightSensitivity:-0.08,
+    technique:['Combina Front Squat + Push Press en un movimiento continuo','Front rack: codos altos durante la sentadilla','En el drive desde abajo, transferir energía directamente al press','Sin pausa entre la sentadilla y el press overhead','Lockout completo de brazos y caderas simultáneo','Movimiento muy demandante metabólicamente — controla la respiración'] },
+
+  { id:'s2o', name:'Shoulder-to-Overhead (S2O)', cat:'💪 Fuerza', icon:'🙌',
+    base:{ M:[35,60,85,110,135], F:[22,40,58,75,92] },
+    ormKey:'press', ormPct:[65,75,82,90,95],
+    heightSensitivity:-0.06,
+    note:'Puede ser Strict Press, Push Press o Push Jerk',
+    technique:['Tres variantes: Strict Press / Push Press / Push Jerk','Strict: sin ayuda de piernas — fuerza pura de hombros','Push Press: dip corto (~10cm) y drive de piernas','Push Jerk: dip + split de pies para mayor carga','En WOD: elegir la variante que permita completar las reps','Lockout completo de codos en todas las variantes'] },
+
+  { id:'kbswing', name:'KB Swing', cat:'💪 Fuerza', icon:'🔔',
+    base:{ M:[16,24,32,32,40], F:[12,16,20,24,28] },
+    ormKey:null, ormPct:null,
+    heightSensitivity:0,
+    note:'Peso kettlebell (kg). Americano: overhead. Ruso: altura de ojos',
+    technique:['Stance ligeramente más ancho que caderas','Inicio con hinge de cadera — NO es una sentadilla','Proyectar las caderas hacia adelante explosivamente','Brazos son solo guías — la fuerza viene de la cadera','Americano: lockout overhead. Ruso: hasta altura de ojos','Dejar caer la KB entre las piernas con control'] },
+
+  { id:'wallball', name:'Wall Ball Shot', cat:'💪 Fuerza', icon:'🏀',
+    base:{ M:[9,9,9,9,10], F:[6,6,6,6,9] },
+    ormKey:null, ormPct:null,
+    heightSensitivity:0,
+    note:'Peso del balón medicinal (kg). Diana: 3m ♂ / 2.7m ♀',
+    technique:['Pelota medicinal a la altura del pecho al iniciar','Front squat completo: cadera por debajo de rodillas','Transferir fuerza de la sentadilla al lanzamiento','Diana a 3m (hombre) o 2.7m (mujer) de altura','Recibir la pelota con manos abiertas y amortiguar','Ritmo sostenido — el cardio se dispara si paras'] },
+
+  // ── CARDIO / METCON ───────────────────────────────────
+  { id:'doubleunder', name:'Double Under (DU)', cat:'🫀 Cardio', icon:'🪢',
+    isBodyweight:true, isCardio:true,
+    scales:{beginner:'Single unders x3 (ratio 3:1)',intermediate:'10-20 DU seguidos',advanced:'50+ DU sin parar',rx:'DU fluido y consistente en WOD',elite:'Triple unders / 100+ DU unbroken'},
+    equipment:'Cuerda de salto speed rope (cable fino)',
+    technique:['Muñecas hacen el giro — no los brazos completos','Salto bajo y eficiente: apenas unos centímetros del suelo','La cuerda pasa DOS veces bajo los pies en cada salto','Mantener posición erguida — no encogerse al saltar','Ritmo: "bounce-bounce-DU" para aprender la cadencia','Tiempo: practicar 10 min/día — la consistencia es clave'] },
+
+  { id:'rowing', name:'Rowing (Remo)', cat:'🫀 Cardio', icon:'🚣',
+    isBodyweight:true, isCardio:true,
+    scales:{beginner:'Técnica básica, pace suave (2:30+/500m)',intermediate:'Pace 2:10–2:00/500m',advanced:'Pace 1:55–1:45/500m',rx:'Pace 1:45–1:35/500m sostenido en WOD',elite:'Pace sub-1:35/500m (♂) / sub-1:45 (♀)'},
+    equipment:'Remoergómetro Concept2 (modelo D o E)',
+    technique:['Secuencia: piernas → espalda → brazos (tirón)','Retorno: brazos → espalda → piernas','Ratio ideal: 60% piernas, 30% espalda, 10% brazos','Damper: 4–6 (♂) / 3–5 (♀) — no al máximo','Sentarse erguido, core activo en todo momento','Stroke rate: 22–26 SPM en WOD de resistencia'] },
+
+  { id:'running', name:'Running', cat:'🫀 Cardio', icon:'🏃',
+    isBodyweight:true, isCardio:true,
+    scales:{beginner:'Carrera continua al paso, 200m',intermediate:'400m en ~2:30 (♂) / ~3:00 (♀)',advanced:'400m en ~1:45 (♂) / ~2:10 (♀)',rx:'400m en ~1:30 (♂) / ~1:50 (♀)',elite:'400m sub-1:15 (♂) / sub-1:30 (♀)'},
+    technique:['En WOD: sprints de 200, 400 u 800m generalmente','Cadencia alta: ~180 pasos/minuto evita sobreimpacto','Aterrizaje bajo el centro de masa — no talón delante','Brazos a 90°, manos relajadas (no puños cerrados)','Respiración: 2 pasos inhalar / 2 pasos exhalar','Gestionar el pace: no salir a full en rondas largas'] },
+
+  { id:'assaultbike', name:'Echo / Assault Bike', cat:'🫀 Cardio', icon:'🚴',
+    isBodyweight:true, isCardio:true,
+    scales:{beginner:'Pace suave, 10 cal/min',intermediate:'15–20 cal/min sostenido',advanced:'25–30 cal/min en intervalos',rx:'30–40 cal/min en WOD',elite:'50+ cal/min en sprints'},
+    equipment:'Assault Bike o Echo Bike — resistencia por aire',
+    technique:['Manillar con brazos Y piernas — trabajo total body','Sillín: rodilla ligeramente flexionada en punto bajo','Cuanto más fuerte pedales, más resistencia genera','Estrategia: sprint 10s / pace 50s es más eficiente que constante','La bici de asalto es la más dura del box — respétala','Calorías son la métrica habitual en WODs (no tiempo)'] },
+
+  { id:'skierg', name:'SkiErg', cat:'🫀 Cardio', icon:'⛷️',
+    isBodyweight:true, isCardio:true,
+    scales:{beginner:'Técnica con poco peso, pace suave',intermediate:'Pace 2:20–2:05/500m',advanced:'Pace 2:00–1:50/500m',rx:'Pace sub-1:50/500m en WOD',elite:'Pace sub-1:35/500m (♂) / sub-1:45 (♀)'},
+    equipment:'Concept2 SkiErg (montado en pared o suelo)',
+    technique:['Movimiento simula el esquí de fondo nórdico','Empezar con brazos arriba, tirar hacia abajo y atrás','Incluir flexión de cadera y rodillas al tirar (no solo brazos)','El tirón va desde encima de la cabeza hasta los muslos','Core muy activo — transfiere fuerza de tren superior a inferior','Damper: 5–7 — similar al remo en ajuste'] },
+];
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let unit = 'kg';
+let currentView = 'main';
+let activeCategory = 'Todos';
+let searchQuery = '';
+let favorites = JSON.parse(localStorage.getItem('ww-favs') || '[]');
+let ormValues = JSON.parse(localStorage.getItem('ww-orm') || '{}');
+let expandedCards = new Set();
+
+// Age category → factor (official CF Games Masters)
+const AGE_FACTORS = {
+  'sub18':0.72, '18-34':1.00, '35-39':0.97,
+  '40-44':0.93, '45-49':0.88, '50-54':0.83,
+  '55-59':0.77, '60-64':0.71, '65+':0.65
+};
+
+// Reference body params
+const REF = { M:{ bw:75, height:175 }, F:{ bw:60, height:165 } };
+
+// ══════════════════════════════════
+// CALCULATION ENGINE
+// ══════════════════════════════════
+
+function getProfile() {
+  const g = document.getElementById('sel-gender').value;
+  const age = document.getElementById('sel-age').value;
+  const lv = document.getElementById('sel-level').value;
+  const bw = parseFloat(document.getElementById('inp-bw').value) || null;
+  const ht = parseFloat(document.getElementById('inp-height').value) || null;
+  return { g, age, lv, bw, ht };
+}
+
+function calcPersonalWeight(mv, lv, profile) {
+  if (mv.isBodyweight) return null;
+  const { g, age, bw, ht } = profile;
+  const lvIdx = LEVELS.indexOf(lv);
+
+  // 1. Base weight (reference athlete)
+  let base = mv.base[g][lvIdx];
+
+  // 2. Age factor
+  base *= AGE_FACTORS[age];
+
+  // 3. Body weight factor (allometric scaling: W ∝ BW^0.67)
+  if (bw) {
+    const refBW = unit === 'lb' ? REF[g].bw * 2.2046 : REF[g].bw;
+    const bwInKg = unit === 'lb' ? bw / 2.2046 : bw;
+    const refBWkg = REF[g].bw;
+    const bwFactor = Math.pow(bwInKg / refBWkg, 0.67);
+    base *= bwFactor;
+  }
+
+  // 4. Height / leverage factor
+  if (ht) {
+    const refHT = REF[g].height;
+    const htDiff = (ht - refHT) / refHT; // relative deviation
+    const sens = mv.heightSensitivity || 0;
+    const htFactor = 1 + htDiff * sens;
+    base *= Math.max(0.6, Math.min(1.4, htFactor));
+  }
+
+  return base;
+}
+
+function toDisplay(kg) {
+  if (!kg) return 0;
+  if (unit === 'lb') return Math.round(kg * 2.2046);
+  return Math.round(kg * 2) / 2;
+}
+
+// ══════════════════════════════════
+// ATHLETE INDEX (IFR)
+// ══════════════════════════════════
+function updateAthleteScore() {
+  const p = getProfile();
+  const box = document.getElementById('athlete-score-box');
+  if (!p.bw) { box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+
+  // Estimate IFR: compare personal deadlift base vs bodyweight
+  const bwKg = unit === 'lb' ? p.bw / 2.2046 : p.bw;
+  const lvIdx = LEVELS.indexOf(p.lv);
+  const dlBase = calcPersonalWeight(MOVEMENTS.find(m => m.id==='deadlift'), p.lv, p);
+  const ifr = dlBase / bwKg;
+  const ifrDisplay = Math.round(ifr * 100) / 100;
+
+  let desc, color, pct;
+  if (ifr < 0.8)       { desc='Iniciando'; color='#888'; pct=10; }
+  else if (ifr < 1.0)  { desc='Principiante'; color='var(--green)'; pct=25; }
+  else if (ifr < 1.4)  { desc='Intermedio'; color='var(--blue)'; pct=45; }
+  else if (ifr < 1.8)  { desc='Avanzado'; color='#ffa500'; pct=65; }
+  else if (ifr < 2.2)  { desc='Rx'; color='var(--red)'; pct=82; }
+  else                 { desc='Elite'; color='var(--accent)'; pct=96; }
+
+  document.getElementById('score-num').textContent = ifrDisplay;
+  document.getElementById('score-num').style.color = color;
+  document.getElementById('score-desc').textContent = desc + ' · DL est. ' + toDisplay(dlBase) + ' ' + unit;
+  document.getElementById('score-bar-fill').style.width = pct + '%';
+  document.getElementById('score-bar-fill').style.background = color;
+}
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function buildCategoryTabs() {
+  document.getElementById('cat-tabs').innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-tab ${c===activeCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`
+  ).join('');
+}
+
+function renderCards(containerId, movements) {
+  const p = getProfile();
+  const html = movements.map((mv, idx) => {
+    const isFav = favorites.includes(mv.id);
+    const isExp = expandedCards.has(mv.id);
+    const w = calcPersonalWeight(mv, p.lv, p);
+    const wD = w ? `${toDisplay(w)}` : '—';
+
+    // Preview
+    let previewHtml;
+    if (mv.isCardio) {
+      previewHtml = `<div class="card-weight-preview">
+        <div class="weight-val" style="font-size:13px;color:var(--blue)">CARDIO</div>
+        <div class="weight-unit" style="color:var(--blue)">TÉCNICA</div>
+      </div>`;
+    } else if (mv.isBodyweight) {
+      previewHtml = `<div class="card-weight-preview">
+        <div class="weight-val" style="font-size:13px;color:var(--text-dim)">PESO</div>
+        <div class="weight-unit">CORPORAL</div>
+      </div>`;
+    } else {
+      previewHtml = `<div class="card-weight-preview">
+        <div class="weight-val">${wD}</div>
+        <div class="weight-unit">${unit}</div>
+        <div class="weight-level ${LEVEL_COLORS[p.lv]}">${LEVEL_LABELS[p.lv].toUpperCase()}</div>
+      </div>`;
+    }
+
+    let bodyHtml = '';
+    if (isExp) {
+      // Personal weight breakdown
+      let pwHtml = '';
+      if (!mv.isBodyweight && w) {
+        const bwKg = (unit==='lb' && p.bw) ? p.bw/2.2046 : p.bw;
+        const relStrength = bwKg ? (w/bwKg).toFixed(2) : '—';
+        const breakdown = [];
+        breakdown.push(`Base nivel: <strong>${toDisplay(mv.base[p.g][LEVELS.indexOf(p.lv)])} ${unit}</strong>`);
+        breakdown.push(`Factor edad (${p.age}): <strong>×${AGE_FACTORS[p.age]}</strong>`);
+        if (p.bw) breakdown.push(`Factor peso corporal (${p.bw} ${unit}): calculado`);
+        if (p.ht) breakdown.push(`Factor talla (${p.ht} cm): calculado`);
+
+        pwHtml = `<div class="personal-weight-box">
+          <div class="pw-main">
+            <div class="pw-label">Tu peso recomendado</div>
+            <div class="pw-value">${wD}<span class="pw-unit"> ${unit}</span></div>
+            <div class="pw-breakdown">${breakdown.join('<br>')}</div>
+          </div>
+          ${bwKg ? `<div class="pw-relative">
+            <div class="pw-rel-val">${relStrength}×</div>
+            <div class="pw-rel-label">FUERZA<br>RELATIVA</div>
+          </div>` : ''}
+        </div>`;
+      }
+
+      // Equipment badge
+      const equipHtml = mv.equipment ? `<div style="background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.25);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--blue)">🏗️ <strong>Equipamiento:</strong> ${mv.equipment}</div>` : '';
+
+      // All levels table
+      let levelsHtml;
+      if (mv.isBodyweight && mv.scales) {
+        // Different label for cardio: use pace/description label
+        const scaleTitle = mv.isCardio ? '🫀 Referencia de rendimiento por nivel' : '⚖️ Escalado por nivel';
+        const borderColor = mv.isCardio ? 'rgba(0,180,255,0.3)' : 'var(--border)';
+        levelsHtml = `<div style="font-size:10px;letter-spacing:2px;color:${mv.isCardio ? 'var(--blue)' : 'var(--text-dim)'};text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;margin-bottom:8px">${scaleTitle}</div>`;
+        levelsHtml += `<div class="scales-list">` + LEVELS.map(lv => {
+          return `<div class="scale-row ${lv===p.lv?'current':''}">
+            <span class="scale-lvl ${LEVEL_COLORS[lv]}">${LEVEL_LABELS[lv].toUpperCase()}</span>
+            <span class="scale-desc">${mv.scales[lv]}</span>
+          </div>`;
+        }).join('') + '</div>';
+      } else {
+        levelsHtml = `<div class="levels-grid">` + LEVELS.map(lv => {
+          const lw = calcPersonalWeight(mv, lv, p);
+          return `<div class="level-cell ${lv===p.lv?'current':''}">
+            <div class="lc-label">${LEVEL_LABELS[lv]}</div>
+            <div class="lc-weight ${LEVEL_COLORS[lv]}">${lw ? toDisplay(lw) : '—'}</div>
+            <div class="lc-unit">${unit}</div>
+          </div>`;
+        }).join('') + '</div>';
+      }
+
+      // 1RM %
+      let ormHtml = '';
+      if (mv.ormKey && mv.ormPct) {
+        const ormVal = parseFloat(document.getElementById(`orm-${mv.ormKey}`)?.value || ormValues[mv.ormKey] || 0);
+        if (ormVal > 0) {
+          ormHtml = `<div class="orm-section">
+            <div class="orm-section-title">📊 % de tu 1RM (${ormVal} ${unit})</div>
+            <div class="pct-bars">${mv.ormPct.map(pct => {
+              const pw = unit==='lb' ? Math.round(ormVal*pct/100) : Math.round(ormVal*pct/100*2)/2;
+              return `<div class="pct-row">
+                <span class="pct-label">${pct}%</span>
+                <div class="pct-bar-wrap"><div class="pct-bar-fill" style="width:${pct}%"></div></div>
+                <span class="pct-weight">${pw} ${unit}</span>
+              </div>`;
+            }).join('')}</div>
+          </div>`;
+        }
+      }
+
+      // Note
+      const noteHtml = mv.note ? `<p style="font-size:11px;color:var(--accent);margin-bottom:10px;letter-spacing:.5px">⚠ ${mv.note}</p>` : '';
+
+      // Technique + diagrams
+      const diagHtml = getDiagram(mv.id);
+      const staticDiagHtml = getStaticDiagram(mv.id);
+      const techHtml = `<div class="technique-section">
+        <div class="technique-title">📋 Posición clave</div>
+        ${staticDiagHtml}
+        <div class="technique-title" style="margin-top:12px">🎬 Fases del movimiento</div>
+        ${diagHtml}
+        <div class="technique-title" style="margin-top:12px">✅ Puntos de técnica</div>
+        <ul class="technique-points">${mv.technique.map(t=>`<li>${t}</li>`).join('')}</ul>
+      </div>`;
+
+      bodyHtml = `<div class="card-body open">${noteHtml}${equipHtml}${pwHtml}${levelsHtml}${ormHtml}${techHtml}</div>`;
+    } else {
+      bodyHtml = `<div class="card-body"></div>`;
+    }
+
+    return `<div class="movement-card ${isFav?'fav':''}" id="card-${mv.id}" style="animation-delay:${idx*.04}s">
+      <div class="card-header" onclick="toggleCard('${mv.id}')">
+        <div class="card-icon">${mv.icon}</div>
+        <div class="card-name"><h3>${mv.name}</h3><div class="card-category">${mv.cat}</div></div>
+        ${previewHtml}
+        <button class="fav-btn ${isFav?'active':''}" onclick="toggleFav(event,'${mv.id}')">★</button>
+      </div>${bodyHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById(containerId).innerHTML = html || `<div class="no-results">No se encontraron movimientos</div>`;
+}
+
+function getFiltered() {
+  return MOVEMENTS.filter(mv => {
+    const matchCat = activeCategory==='Todos' || mv.cat===activeCategory;
+    const matchQ = !searchQuery || mv.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCat && matchQ;
+  });
+}
+
+function updateView() {
+  saveORM();
+  updateAthleteScore();
+  if (currentView==='main') renderCards('movements-list', getFiltered());
+  else if (currentView==='favs') renderFavs();
+  calcUpdate();
+}
+
+function renderFavs() {
+  const favMvs = MOVEMENTS.filter(mv => favorites.includes(mv.id));
+  document.getElementById('fav-empty').style.display = favMvs.length ? 'none' : 'block';
+  if (favMvs.length) renderCards('fav-list', favMvs);
+  else document.getElementById('fav-list').innerHTML = '';
+}
+
+// ══════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════
+function setUnit(u) {
+  unit = u;
+  document.getElementById('btn-kg').classList.toggle('active', u==='kg');
+  document.getElementById('btn-lb').classList.toggle('active', u==='lb');
+  document.getElementById('calc-unit-label').textContent = u;
+  document.getElementById('plates-unit').textContent = u;
+  document.getElementById('weight-unit-label').textContent = u;
+  updateView();
+  calcPlates();
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  buildCategoryTabs();
+  renderCards('movements-list', getFiltered());
+}
+
+function filterMovements() {
+  searchQuery = document.getElementById('search-input').value;
+  renderCards('movements-list', getFiltered());
+}
+
+function toggleCard(id) {
+  expandedCards.has(id) ? expandedCards.delete(id) : expandedCards.add(id);
+  updateView();
+}
+
+function toggleFav(e, id) {
+  e.stopPropagation();
+  favorites.includes(id) ? (favorites = favorites.filter(f=>f!==id)) : favorites.push(id);
+  localStorage.setItem('ww-favs', JSON.stringify(favorites));
+  updateView();
+}
+
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.getElementById(`nav-${view}`).classList.add('active');
+  if (view==='favs') renderFavs();
+  if (view==='main') renderCards('movements-list', getFiltered());
+}
+
+function toggleORM() {
+  const grid = document.getElementById('orm-grid');
+  const label = document.getElementById('orm-toggle-label');
+  const open = grid.classList.contains('open');
+  grid.classList.toggle('open', !open);
+  label.textContent = open ? '▼ ABRIR' : '▲ CERRAR';
+  if (!open) {
+    Object.entries(ormValues).forEach(([k,v]) => {
+      const el = document.getElementById(`orm-${k}`);
+      if (el) el.value = v;
+    });
+  }
+}
+
+function saveORM() {
+  ['backsquat','frontsquat','deadlift','clean','snatch','cjerk','press','thruster'].forEach(k => {
+    const el = document.getElementById(`orm-${k}`);
+    if (el && el.value) ormValues[k] = el.value;
+  });
+  localStorage.setItem('ww-orm', JSON.stringify(ormValues));
+}
+
+function syncAgeCategory() {
+  const age = parseInt(document.getElementById('inp-age').value);
+  if (!age) return;
+  let cat = '18-34';
+  if (age < 18)       cat = 'sub18';
+  else if (age <= 34) cat = '18-34';
+  else if (age <= 39) cat = '35-39';
+  else if (age <= 44) cat = '40-44';
+  else if (age <= 49) cat = '45-49';
+  else if (age <= 54) cat = '50-54';
+  else if (age <= 59) cat = '55-59';
+  else if (age <= 64) cat = '60-64';
+  else                cat = '65+';
+  document.getElementById('sel-age').value = cat;
+  updateView();
+}
+
+// ══════════════════════════════════
+// CALCULADORA
+// ══════════════════════════════════
+function calcUpdate() {
+  const orm = parseFloat(document.getElementById('calc-orm')?.value || 0);
+  const grid = document.getElementById('calc-grid');
+  if (!grid) return;
+  if (!orm) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:12px;grid-column:1/-1;text-align:center;padding:8px">Ingresa tu 1RM</p>'; return; }
+  const pcts = [50,55,60,65,70,75,80,85,90,95];
+  grid.innerHTML = pcts.map(p => {
+    const w = unit==='lb' ? Math.round(orm*p/100) : Math.round(orm*p/100*2)/2;
+    return `<div class="calc-result-cell"><div class="cr-pct">${p}%</div><div class="cr-weight">${w}</div><div class="cr-unit">${unit}</div></div>`;
+  }).join('');
+}
+
+function convFromKg() {
+  const kg = parseFloat(document.getElementById('conv-kg').value||0);
+  document.getElementById('conv-lb').value = kg ? Math.round(kg*2.2046*10)/10 : '';
+}
+function convFromLb() {
+  const lb = parseFloat(document.getElementById('conv-lb').value||0);
+  document.getElementById('conv-kg').value = lb ? Math.round(lb/2.2046*10)/10 : '';
+}
+
+function calcPlates() {
+  const target = parseFloat(document.getElementById('plates-target')?.value||0);
+  const el = document.getElementById('plates-result');
+  if (!el) return;
+  if (!target) { el.innerHTML='<span style="color:var(--text-muted)">Ingresa el peso objetivo</span>'; return; }
+  const barKg = unit==='lb' ? 45/2.2046 : 20;
+  const barLabel = unit==='lb' ? '45lb (barra olímpica)' : '20kg (barra olímpica)';
+  const targetKg = unit==='lb' ? target/2.2046 : target;
+  if (targetKg < barKg) { el.innerHTML=`<span style="color:var(--red)">Menor que la barra (${barLabel})</span>`; return; }
+  let rem = (targetKg - barKg) / 2;
+  const platesKg = [25,20,15,10,5,2.5,1.25,0.5];
+  const platesLb = [45,35,25,15,10,5,2.5].map(x=>x/2.2046);
+  const pw = unit==='lb' ? platesLb : platesKg;
+  const pl = unit==='lb' ? ['45','35','25','15','10','5','2.5'] : ['25','20','15','10','5','2.5','1.25','0.5'];
+  const sides = [];
+  pw.forEach((p,i) => {
+    const n = Math.floor(rem/p+0.001);
+    if (n>0) { sides.push(`${n}×${pl[i]}${unit}`); rem-=n*p; }
+  });
+  el.innerHTML=`<div style="color:var(--text-dim);font-size:11px;margin-bottom:6px">Barra: <strong style="color:var(--text)">${barLabel}</strong></div>
+  <div style="font-family:'Barlow Condensed';font-size:18px;color:var(--accent);margin-bottom:5px">Por lado: ${sides.length?sides.join(' + '):'Solo la barra'}</div>
+  ${rem>0.05?`<div style="color:var(--text-muted);font-size:11px">⚠ Diferencia ~${Math.round(rem*2*100)/100}${unit}</div>`:''}`;
+}
+
+// ══════════════════════════════════
+// SVG ANIMATED DIAGRAMS
+// ══════════════════════════════════
+// Each diagram: array of SVG "phase" panels showing key positions
+// Colors: accent=#e8ff00 bar=#aaaaaa body=#f0f0f0 joint=#e8ff00
+
+const DIAGRAMS = {};  // replaced by continuous animations below
+
+function getDiagram(mvId) {
+  var el = document.getElementById('canim-' + mvId);
+  if (!el) return '';
+  return '<div class="cont-anim-wrap">' + el.innerHTML + '</div>';
+}
+
+// ══════════════════════════════════
+// CONTINUOUS SINGLE-SVG ANIMATIONS
+// Each movement animates in a loop:
+// setup → execution → finish → reset
+// ══════════════════════════════════
+
+/* Phase label synced via CSS animation on <text> opacity */
+
+const CONTINUOUS_ANIM = 'DOM';
+
+
+function getDiagram(mvId) {
+  return DIAGRAMS[mvId] || '';
+}
+
+// ══════════════════════════════════
+// STATIC POSITION DIAGRAMS
+// Detailed SVG with annotation callouts
+// showing the single most critical position
+// ══════════════════════════════════
+
+const STATIC_DIAGRAMS = 'DOM';
+function getStaticDiagram(mvId) {
+  var el = document.getElementById('sdiag-' + mvId);
+  if (!el) return '';
+  return '<div style="margin-bottom:12px;border-radius:8px;overflow:hidden">' + el.innerHTML + '</div>';
+}
+
+function init() {
+  buildCategoryTabs();
+  renderCards('movements-list', getFiltered());
+  calcUpdate();
+  Object.entries(ormValues).forEach(([k,v]) => {
+    const el = document.getElementById(`orm-${k}`);
+    if (el) el.value = v;
+  });
+  // Load saved profile
+  const saved = JSON.parse(localStorage.getItem('ww-profile')||'{}');
+  if (saved.bw) document.getElementById('inp-bw').value = saved.bw;
+  if (saved.ht) document.getElementById('inp-height').value = saved.ht;
+  if (saved.age) document.getElementById('inp-age').value = saved.age;
+  if (saved.g) document.getElementById('sel-gender').value = saved.g;
+  if (saved.lv) document.getElementById('sel-level').value = saved.lv;
+  if (saved.agecat) document.getElementById('sel-age').value = saved.agecat;
+  updateAthleteScore();
+}
+
+// Save profile on any change
+setInterval(() => {
+  localStorage.setItem('ww-profile', JSON.stringify({
+    bw: document.getElementById('inp-bw').value,
+    ht: document.getElementById('inp-height').value,
+    age: document.getElementById('inp-age').value,
+    g: document.getElementById('sel-gender').value,
+    lv: document.getElementById('sel-level').value,
+    agecat: document.getElementById('sel-age').value
+  }));
+}, 3000);
+
+init();
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+<div id="svg-data" style="display:none">
+<div id="canim-snatch"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+/* SNATCH: 0-25% setup, 25-55% pull+triple ext, 55-80% OHS, 80-100% reset */
+.sn-bar{animation:sn-bar 3.6s ease-in-out infinite}
+.sn-head{animation:sn-head 3.6s ease-in-out infinite}
+.sn-torso{animation:sn-torso 3.6s ease-in-out infinite;transform-origin:150px 155px}
+.sn-larm{animation:sn-larm 3.6s ease-in-out infinite;transform-origin:150px 130px}
+.sn-rarm{animation:sn-rarm 3.6s ease-in-out infinite;transform-origin:150px 130px}
+.sn-lleg{animation:sn-lleg 3.6s ease-in-out infinite;transform-origin:150px 160px}
+.sn-rleg{animation:sn-rleg 3.6s ease-in-out infinite;transform-origin:150px 160px}
+.sn-lshin{animation:sn-lshin 3.6s ease-in-out infinite;transform-origin:125px 195px}
+.sn-rshin{animation:sn-rshin 3.6s ease-in-out infinite;transform-origin:175px 195px}
+.sn-phase{animation:sn-phase 3.6s step-end infinite}
+.sn-p1{animation:sn-p1 3.6s ease infinite}
+.sn-p2{animation:sn-p2 3.6s ease infinite}
+.sn-p3{animation:sn-p3 3.6s ease infinite}
+
+@keyframes sn-bar{
+  0%,15%  {transform:translateY(0)}
+  40%,50% {transform:translateY(-110px)}
+  55%,80% {transform:translateY(-130px)}
+  95%,100%{transform:translateY(0)}
+}
+@keyframes sn-head{
+  0%,15%  {transform:translate(0,0)}
+  30%,50% {transform:translate(0,-30px)}
+  55%,80% {transform:translate(0,-50px)}
+  95%,100%{transform:translate(0,0)}
+}
+@keyframes sn-torso{
+  0%,15%  {transform:rotate(35deg)}
+  30%,50% {transform:rotate(0deg)}
+  55%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(35deg)}
+}
+@keyframes sn-larm{
+  0%,15%  {transform:rotate(20deg)}
+  35%,50% {transform:rotate(-40deg)}
+  55%,80% {transform:rotate(-70deg)}
+  95%,100%{transform:rotate(20deg)}
+}
+@keyframes sn-rarm{
+  0%,15%  {transform:rotate(-20deg)}
+  35%,50% {transform:rotate(40deg)}
+  55%,80% {transform:rotate(70deg)}
+  95%,100%{transform:rotate(-20deg)}
+}
+@keyframes sn-lleg{
+  0%,15%  {transform:rotate(-20deg)}
+  35%,50% {transform:rotate(5deg)}
+  55%,80% {transform:rotate(-30deg)}
+  95%,100%{transform:rotate(-20deg)}
+}
+@keyframes sn-rleg{
+  0%,15%  {transform:rotate(20deg)}
+  35%,50% {transform:rotate(-5deg)}
+  55%,80% {transform:rotate(30deg)}
+  95%,100%{transform:rotate(20deg)}
+}
+@keyframes sn-lshin{
+  0%,15%  {transform:rotate(10deg)}
+  35%,50% {transform:rotate(-5deg)}
+  55%,80% {transform:rotate(20deg)}
+  95%,100%{transform:rotate(10deg)}
+}
+@keyframes sn-rshin{
+  0%,15%  {transform:rotate(-10deg)}
+  35%,50% {transform:rotate(5deg)}
+  55%,80% {transform:rotate(-20deg)}
+  95%,100%{transform:rotate(-10deg)}
+}
+@keyframes sn-p1{0%,20%{opacity:1}25%,100%{opacity:0}}
+@keyframes sn-p2{0%,22%{opacity:0}25%,55%{opacity:1}60%,100%{opacity:0}}
+@keyframes sn-p3{0%,52%{opacity:0}55%,82%{opacity:1}87%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<!-- floor plates -->
+<circle cx="112" cy="218" r="12" fill="none" stroke="#555" stroke-width="3"/>
+<circle cx="188" cy="218" r="12" fill="none" stroke="#555" stroke-width="3"/>
+<!-- BAR (animated) -->
+<g class="sn-bar">
+  <rect x="80" y="208" width="140" height="7" rx="3" fill="#e8ff00"/>
+  <circle cx="80" cy="211" r="14" fill="none" stroke="#e8ff00" stroke-width="3"/>
+  <circle cx="220" cy="211" r="14" fill="none" stroke="#e8ff00" stroke-width="3"/>
+</g>
+<!-- FIGURE -->
+<!-- Head -->
+<g class="sn-head">
+  <circle cx="150" cy="65" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="145" cy="62" r="2" fill="#f0f0f0"/>
+  <circle cx="155" cy="62" r="2" fill="#f0f0f0"/>
+</g>
+<!-- Torso -->
+<g class="sn-torso">
+  <line x1="150" y1="79" x2="150" y2="155" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <!-- shoulders -->
+  <line x1="120" y1="95" x2="180" y2="95" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- hips -->
+  <circle cx="150" cy="155" r="6" fill="#ff4d00"/>
+</g>
+<!-- Left arm -->
+<g class="sn-larm">
+  <line x1="120" y1="95" x2="95" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="95" cy="155" r="5" fill="#e8ff00"/>
+</g>
+<!-- Right arm -->
+<g class="sn-rarm">
+  <line x1="180" y1="95" x2="205" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="205" cy="155" r="5" fill="#e8ff00"/>
+</g>
+<!-- Left thigh -->
+<g class="sn-lleg">
+  <line x1="145" y1="155" x2="125" y2="200" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="125" cy="200" r="5" fill="#00b4ff"/>
+</g>
+<!-- Left shin -->
+<g class="sn-lshin">
+  <line x1="125" y1="200" x2="115" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- Right thigh -->
+<g class="sn-rleg">
+  <line x1="155" y1="155" x2="175" y2="200" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="175" cy="200" r="5" fill="#00b4ff"/>
+</g>
+<!-- Right shin -->
+<g class="sn-rshin">
+  <line x1="175" y1="200" x2="185" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- Phase labels -->
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="sn-p1">① SETUP — Hinge, grip ancho</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="sn-p2">② TIRÓN — Triple extensión</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="sn-p3">③ OHS — Recepción overhead</text>
+<!-- trajectory arc -->
+<path d="M150 210 Q130 150 150 80" fill="none" stroke="#e8ff00" stroke-width="1" stroke-dasharray="4,3" opacity="0.25"/>
+</svg></div>
+<div id="canim-clean"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.cl-bar{animation:cl-bar 3.8s ease-in-out infinite}
+.cl-head{animation:cl-head 3.8s ease-in-out infinite}
+.cl-torso{animation:cl-torso 3.8s ease-in-out infinite;transform-origin:150px 150px}
+.cl-larm{animation:cl-larm 3.8s ease-in-out infinite;transform-origin:150px 120px}
+.cl-rarm{animation:cl-rarm 3.8s ease-in-out infinite;transform-origin:150px 120px}
+.cl-lleg{animation:cl-lleg 3.8s ease-in-out infinite;transform-origin:150px 155px}
+.cl-rleg{animation:cl-rleg 3.8s ease-in-out infinite;transform-origin:150px 155px}
+.cl-lshin{animation:cl-lshin 3.8s ease-in-out infinite;transform-origin:125px 192px}
+.cl-rshin{animation:cl-rshin 3.8s ease-in-out infinite;transform-origin:175px 192px}
+.cl-p1{animation:cl-p1 3.8s ease infinite}
+.cl-p2{animation:cl-p2 3.8s ease infinite}
+.cl-p3{animation:cl-p3 3.8s ease infinite}
+@keyframes cl-bar{
+  0%,12%  {transform:translateY(0)}
+  38%,52% {transform:translateY(-90px)}
+  55%,82% {transform:translateY(-95px)}
+  96%,100%{transform:translateY(0)}
+}
+@keyframes cl-head{
+  0%,12%  {transform:translate(0,0)}
+  35%,52% {transform:translate(0,-25px)}
+  55%,82% {transform:translate(0,-40px)}
+  96%,100%{transform:translate(0,0)}
+}
+@keyframes cl-torso{
+  0%,12%  {transform:rotate(32deg)}
+  35%,52% {transform:rotate(0deg)}
+  55%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(32deg)}
+}
+@keyframes cl-larm{
+  0%,12%  {transform:rotate(15deg)}
+  30%,45% {transform:rotate(-25deg)}
+  55%,82% {transform:rotate(-50deg) translateX(-8px)}
+  96%,100%{transform:rotate(15deg)}
+}
+@keyframes cl-rarm{
+  0%,12%  {transform:rotate(-15deg)}
+  30%,45% {transform:rotate(25deg)}
+  55%,82% {transform:rotate(50deg) translateX(8px)}
+  96%,100%{transform:rotate(-15deg)}
+}
+@keyframes cl-lleg{
+  0%,12%  {transform:rotate(-18deg)}
+  35%,52% {transform:rotate(2deg)}
+  55%,82% {transform:rotate(-28deg)}
+  96%,100%{transform:rotate(-18deg)}
+}
+@keyframes cl-rleg{
+  0%,12%  {transform:rotate(18deg)}
+  35%,52% {transform:rotate(-2deg)}
+  55%,82% {transform:rotate(28deg)}
+  96%,100%{transform:rotate(18deg)}
+}
+@keyframes cl-lshin{
+  0%,12%  {transform:rotate(8deg)}
+  35%,52% {transform:rotate(-3deg)}
+  55%,82% {transform:rotate(18deg)}
+  96%,100%{transform:rotate(8deg)}
+}
+@keyframes cl-rshin{
+  0%,12%  {transform:rotate(-8deg)}
+  35%,52% {transform:rotate(3deg)}
+  55%,82% {transform:rotate(-18deg)}
+  96%,100%{transform:rotate(-8deg)}
+}
+@keyframes cl-p1{0%,18%{opacity:1}22%,100%{opacity:0}}
+@keyframes cl-p2{0%,20%{opacity:0}22%,55%{opacity:1}59%,100%{opacity:0}}
+@keyframes cl-p3{0%,52%{opacity:0}55%,84%{opacity:1}88%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<circle cx="112" cy="218" r="12" fill="none" stroke="#555" stroke-width="3"/>
+<circle cx="188" cy="218" r="12" fill="none" stroke="#555" stroke-width="3"/>
+<g class="cl-bar">
+  <rect x="82" y="208" width="136" height="7" rx="3" fill="#aaa"/>
+  <circle cx="82" cy="211" r="14" fill="none" stroke="#aaa" stroke-width="3"/>
+  <circle cx="218" cy="211" r="14" fill="none" stroke="#aaa" stroke-width="3"/>
+</g>
+<g class="cl-head">
+  <circle cx="150" cy="68" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="145" cy="65" r="2" fill="#f0f0f0"/>
+  <circle cx="155" cy="65" r="2" fill="#f0f0f0"/>
+</g>
+<g class="cl-torso">
+  <line x1="150" y1="82" x2="150" y2="150" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="122" y1="98" x2="178" y2="98" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="150" r="6" fill="#ff4d00"/>
+</g>
+<g class="cl-larm">
+  <line x1="122" y1="98" x2="98" y2="152" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="98" cy="152" r="5" fill="#e8ff00"/>
+</g>
+<g class="cl-rarm">
+  <line x1="178" y1="98" x2="202" y2="152" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="202" cy="152" r="5" fill="#e8ff00"/>
+</g>
+<g class="cl-lleg">
+  <line x1="144" y1="150" x2="122" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="122" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="cl-lshin">
+  <line x1="122" y1="195" x2="112" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="cl-rleg">
+  <line x1="156" y1="150" x2="178" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="178" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="cl-rshin">
+  <line x1="178" y1="195" x2="188" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cl-p1">① SETUP — Hinge, grip medio</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cl-p2">② TIRÓN — Extensión explosiva</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cl-p3">③ FRONT RACK — Codos altos</text>
+</svg></div>
+<div id="canim-cjerk"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.cj-bar{animation:cj-bar 4s ease-in-out infinite}
+.cj-head{animation:cj-head 4s ease-in-out infinite}
+.cj-torso{animation:cj-torso 4s ease-in-out infinite;transform-origin:150px 148px}
+.cj-larm{animation:cj-larm 4s ease-in-out infinite;transform-origin:125px 108px}
+.cj-rarm{animation:cj-rarm 4s ease-in-out infinite;transform-origin:175px 108px}
+.cj-lleg{animation:cj-lleg 4s ease-in-out infinite;transform-origin:150px 148px}
+.cj-rleg{animation:cj-rleg 4s ease-in-out infinite;transform-origin:150px 148px}
+.cj-lshin{animation:cj-lshin 4s ease-in-out infinite;transform-origin:126px 190px}
+.cj-rshin{animation:cj-rshin 4s ease-in-out infinite;transform-origin:174px 182px}
+.cj-p1{animation:cj-p1 4s ease infinite}
+.cj-p2{animation:cj-p2 4s ease infinite}
+.cj-p3{animation:cj-p3 4s ease infinite}
+@keyframes cj-bar{
+  0%,18%  {transform:translateY(0)}       /* front rack */
+  22%,30% {transform:translateY(6px)}     /* dip */
+  38%,55% {transform:translateY(-95px)}   /* overhead drive */
+  58%,82% {transform:translateY(-90px)}   /* split lockout */
+  96%,100%{transform:translateY(0)}
+}
+@keyframes cj-head{
+  0%,18%  {transform:translate(0,0)}
+  38%,82% {transform:translate(0,-28px)}
+  96%,100%{transform:translate(0,0)}
+}
+@keyframes cj-torso{
+  0%,18%  {transform:rotate(0deg)}
+  22%,30% {transform:rotate(2deg)}
+  38%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-larm{
+  0%,18%  {transform:rotate(0deg)}
+  38%,55% {transform:rotate(-70deg)}
+  58%,82% {transform:rotate(-72deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-rarm{
+  0%,18%  {transform:rotate(0deg)}
+  38%,55% {transform:rotate(70deg)}
+  58%,82% {transform:rotate(72deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-lleg{
+  0%,35%  {transform:rotate(0deg)}
+  55%,82% {transform:rotate(-22deg)}      /* split front */
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-rleg{
+  0%,35%  {transform:rotate(0deg)}
+  55%,82% {transform:rotate(25deg)}       /* split back */
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-lshin{
+  0%,55%  {transform:rotate(0deg)}
+  58%,82% {transform:rotate(-8deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-rshin{
+  0%,55%  {transform:rotate(0deg)}
+  58%,82% {transform:rotate(12deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes cj-p1{0%,22%{opacity:1}26%,100%{opacity:0}}
+@keyframes cj-p2{0%,24%{opacity:0}26%,56%{opacity:1}60%,100%{opacity:0}}
+@keyframes cj-p3{0%,54%{opacity:0}57%,84%{opacity:1}88%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<g class="cj-bar">
+  <rect x="88" y="105" width="124" height="7" rx="3" fill="#e8ff00"/>
+  <circle cx="88" cy="108" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="212" cy="108" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+</g>
+<g class="cj-head">
+  <circle cx="150" cy="62" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="145" cy="59" r="2" fill="#f0f0f0"/>
+  <circle cx="155" cy="59" r="2" fill="#f0f0f0"/>
+</g>
+<g class="cj-torso">
+  <line x1="150" y1="76" x2="150" y2="148" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="125" y1="92" x2="175" y2="92" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="148" r="6" fill="#ff4d00"/>
+</g>
+<g class="cj-larm">
+  <line x1="125" y1="92" x2="100" y2="108" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="100" cy="108" r="5" fill="#e8ff00"/>
+</g>
+<g class="cj-rarm">
+  <line x1="175" y1="92" x2="200" y2="108" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="200" cy="108" r="5" fill="#e8ff00"/>
+</g>
+<g class="cj-lleg">
+  <line x1="144" y1="148" x2="126" y2="192" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="126" cy="192" r="5" fill="#00b4ff"/>
+</g>
+<g class="cj-lshin">
+  <line x1="126" y1="192" x2="116" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="cj-rleg">
+  <line x1="156" y1="148" x2="174" y2="185" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="174" cy="185" r="5" fill="#00b4ff"/>
+</g>
+<g class="cj-rshin">
+  <line x1="174" y1="185" x2="190" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cj-p1">① DIP — Corto y vertical</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cj-p2">② DRIVE — Piernas → overhead</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="cj-p3">③ SPLIT — Lockout completo</text>
+</svg></div>
+<div id="canim-deadlift"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.dl-bar{animation:dl-bar 3.5s ease-in-out infinite}
+.dl-head{animation:dl-head 3.5s ease-in-out infinite}
+.dl-torso{animation:dl-torso 3.5s ease-in-out infinite;transform-origin:150px 148px}
+.dl-larm{animation:dl-larm 3.5s ease-in-out infinite;transform-origin:130px 105px}
+.dl-rarm{animation:dl-rarm 3.5s ease-in-out infinite;transform-origin:170px 105px}
+.dl-lleg{animation:dl-lleg 3.5s ease-in-out infinite;transform-origin:142px 148px}
+.dl-rleg{animation:dl-rleg 3.5s ease-in-out infinite;transform-origin:158px 148px}
+.dl-lshin{animation:dl-lshin 3.5s ease-in-out infinite;transform-origin:128px 192px}
+.dl-rshin{animation:dl-rshin 3.5s ease-in-out infinite;transform-origin:172px 192px}
+.dl-p1{animation:dl-p1 3.5s ease infinite}
+.dl-p2{animation:dl-p2 3.5s ease infinite}
+.dl-p3{animation:dl-p3 3.5s ease infinite}
+@keyframes dl-bar{
+  0%,15%  {transform:translateY(0)}
+  45%,60% {transform:translateY(-85px)}
+  62%,80% {transform:translateY(-85px)}
+  95%,100%{transform:translateY(0)}
+}
+@keyframes dl-head{
+  0%,15%  {transform:translate(8px,0)}
+  42%,80% {transform:translate(0,-35px)}
+  95%,100%{transform:translate(8px,0)}
+}
+@keyframes dl-torso{
+  0%,15%  {transform:rotate(38deg)}
+  42%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(38deg)}
+}
+@keyframes dl-larm{
+  0%,80%  {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes dl-rarm{
+  0%,80%  {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes dl-lleg{
+  0%,15%  {transform:rotate(-15deg)}
+  42%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(-15deg)}
+}
+@keyframes dl-rleg{
+  0%,15%  {transform:rotate(15deg)}
+  42%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(15deg)}
+}
+@keyframes dl-lshin{
+  0%,15%  {transform:rotate(12deg)}
+  42%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(12deg)}
+}
+@keyframes dl-rshin{
+  0%,15%  {transform:rotate(-12deg)}
+  42%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(-12deg)}
+}
+@keyframes dl-p1{0%,18%{opacity:1}22%,100%{opacity:0}}
+@keyframes dl-p2{0%,20%{opacity:0}22%,62%{opacity:1}66%,100%{opacity:0}}
+@keyframes dl-p3{0%,60%{opacity:0}63%,82%{opacity:1}86%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<circle cx="108" cy="218" r="14" fill="none" stroke="#555" stroke-width="3.5"/>
+<circle cx="192" cy="218" r="14" fill="none" stroke="#555" stroke-width="3.5"/>
+<!-- bar path guide -->
+<line x1="150" y1="30" x2="150" y2="215" stroke="#e8ff00" stroke-width="1" stroke-dasharray="4,4" opacity="0.2"/>
+<g class="dl-bar">
+  <rect x="78" y="208" width="144" height="8" rx="4" fill="#e8ff00"/>
+</g>
+<g class="dl-head">
+  <circle cx="142" cy="58" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="138" cy="55" r="2" fill="#f0f0f0"/>
+  <circle cx="148" cy="55" r="2" fill="#f0f0f0"/>
+</g>
+<g class="dl-torso">
+  <line x1="150" y1="72" x2="150" y2="148" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="130" y1="88" x2="170" y2="88" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="148" r="6" fill="#ff4d00"/>
+  <!-- spine neutral indicator -->
+  <path d="M150 80 Q148 110 150 145" fill="none" stroke="#00e676" stroke-width="2" stroke-dasharray="3,3" opacity="0.6"/>
+</g>
+<g class="dl-larm">
+  <line x1="130" y1="88" x2="118" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="118" cy="155" r="5" fill="#e8ff00"/>
+</g>
+<g class="dl-rarm">
+  <line x1="170" y1="88" x2="182" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="182" cy="155" r="5" fill="#e8ff00"/>
+</g>
+<g class="dl-lleg">
+  <line x1="142" y1="148" x2="125" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="125" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="dl-lshin">
+  <line x1="125" y1="195" x2="118" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="dl-rleg">
+  <line x1="158" y1="148" x2="175" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="175" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="dl-rshin">
+  <line x1="175" y1="195" x2="182" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="dl-p1">① SETUP — Hinge, espalda neutra</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="dl-p2">② TRACCIÓN — Barra pegada al cuerpo</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="dl-p3">③ LOCKOUT — Extensión completa</text>
+</svg></div>
+<div id="canim-thruster"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.th-bar{animation:th-bar 3.8s ease-in-out infinite}
+.th-head{animation:th-head 3.8s ease-in-out infinite}
+.th-torso{animation:th-torso 3.8s ease-in-out infinite;transform-origin:150px 148px}
+.th-larm{animation:th-larm 3.8s ease-in-out infinite;transform-origin:125px 105px}
+.th-rarm{animation:th-rarm 3.8s ease-in-out infinite;transform-origin:175px 105px}
+.th-lleg{animation:th-lleg 3.8s ease-in-out infinite;transform-origin:150px 148px}
+.th-rleg{animation:th-rleg 3.8s ease-in-out infinite;transform-origin:150px 148px}
+.th-lshin{animation:th-lshin 3.8s ease-in-out infinite;transform-origin:118px 195px}
+.th-rshin{animation:th-rshin 3.8s ease-in-out infinite;transform-origin:182px 195px}
+.th-p1{animation:th-p1 3.8s ease infinite}
+.th-p2{animation:th-p2 3.8s ease infinite}
+.th-p3{animation:th-p3 3.8s ease infinite}
+@keyframes th-bar{
+  0%,5%   {transform:translateY(-50px)}   /* overhead start */
+  12%,20% {transform:translateY(-5px)}    /* front rack */
+  25%,42% {transform:translateY(-5px)}    /* squat hold */
+  58%,80% {transform:translateY(-115px)}  /* overhead lockout */
+  95%,100%{transform:translateY(-50px)}
+}
+@keyframes th-head{
+  0%,5%   {transform:translate(0,-40px)}
+  12%,42% {transform:translate(0,0)}
+  58%,80% {transform:translate(0,-42px)}
+  95%,100%{transform:translate(0,-40px)}
+}
+@keyframes th-torso{
+  0%,5%   {transform:rotate(0deg)}
+  25%,42% {transform:rotate(4deg)}
+  58%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes th-larm{
+  0%,5%   {transform:rotate(-62deg)}
+  12%,42% {transform:rotate(-8deg)}
+  58%,80% {transform:rotate(-68deg)}
+  95%,100%{transform:rotate(-62deg)}
+}
+@keyframes th-rarm{
+  0%,5%   {transform:rotate(62deg)}
+  12%,42% {transform:rotate(8deg)}
+  58%,80% {transform:rotate(68deg)}
+  95%,100%{transform:rotate(62deg)}
+}
+@keyframes th-lleg{
+  0%,12%  {transform:rotate(0deg)}
+  25%,42% {transform:rotate(-30deg)}
+  58%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes th-rleg{
+  0%,12%  {transform:rotate(0deg)}
+  25%,42% {transform:rotate(30deg)}
+  58%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes th-lshin{
+  0%,12%  {transform:rotate(0deg)}
+  25%,42% {transform:rotate(22deg)}
+  58%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes th-rshin{
+  0%,12%  {transform:rotate(0deg)}
+  25%,42% {transform:rotate(-22deg)}
+  58%,80% {transform:rotate(0deg)}
+  95%,100%{transform:rotate(0deg)}
+}
+@keyframes th-p1{0%,15%{opacity:1}19%,100%{opacity:0}}
+@keyframes th-p2{0%,17%{opacity:0}20%,55%{opacity:1}59%,100%{opacity:0}}
+@keyframes th-p3{0%,53%{opacity:0}57%,82%{opacity:1}86%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<g class="th-bar">
+  <rect x="88" y="108" width="124" height="7" rx="3" fill="#e8ff00"/>
+  <circle cx="88" cy="111" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="212" cy="111" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+</g>
+<g class="th-head">
+  <circle cx="150" cy="64" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="145" cy="61" r="2" fill="#f0f0f0"/>
+  <circle cx="155" cy="61" r="2" fill="#f0f0f0"/>
+</g>
+<g class="th-torso">
+  <line x1="150" y1="78" x2="150" y2="148" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="125" y1="95" x2="175" y2="95" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="148" r="6" fill="#ff4d00"/>
+</g>
+<g class="th-larm">
+  <line x1="125" y1="95" x2="102" y2="112" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="102" cy="112" r="5" fill="#e8ff00"/>
+</g>
+<g class="th-rarm">
+  <line x1="175" y1="95" x2="198" y2="112" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="198" cy="112" r="5" fill="#e8ff00"/>
+</g>
+<g class="th-lleg">
+  <line x1="142" y1="148" x2="118" y2="198" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="118" cy="198" r="5" fill="#00b4ff"/>
+</g>
+<g class="th-lshin">
+  <line x1="118" y1="198" x2="108" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="th-rleg">
+  <line x1="158" y1="148" x2="182" y2="198" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="182" cy="198" r="5" fill="#00b4ff"/>
+</g>
+<g class="th-rshin">
+  <line x1="182" y1="198" x2="192" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="th-p1">① FRONT SQUAT — Codos altos</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="th-p2">② ATF — Cadera bajo rodillas</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="th-p3">③ PRESS — Sin pausa, lockout</text>
+</svg></div>
+<div id="canim-s2o"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.s2-bar{animation:s2-bar 3.4s ease-in-out infinite}
+.s2-head{animation:s2-head 3.4s ease-in-out infinite}
+.s2-lleg{animation:s2-lleg 3.4s ease-in-out infinite;transform-origin:150px 148px}
+.s2-rleg{animation:s2-rleg 3.4s ease-in-out infinite;transform-origin:150px 148px}
+.s2-lshin{animation:s2-lshin 3.4s ease-in-out infinite;transform-origin:128px 190px}
+.s2-rshin{animation:s2-rshin 3.4s ease-in-out infinite;transform-origin:172px 190px}
+.s2-larm{animation:s2-larm 3.4s ease-in-out infinite;transform-origin:125px 100px}
+.s2-rarm{animation:s2-rarm 3.4s ease-in-out infinite;transform-origin:175px 100px}
+.s2-p1{animation:s2-p1 3.4s ease infinite}
+.s2-p2{animation:s2-p2 3.4s ease infinite}
+.s2-p3{animation:s2-p3 3.4s ease infinite}
+@keyframes s2-bar{
+  0%,12%  {transform:translateY(0)}       /* front rack */
+  18%,26% {transform:translateY(6px)}     /* dip */
+  40%,65% {transform:translateY(-92px)}   /* overhead */
+  68%,82% {transform:translateY(-92px)}   /* hold */
+  96%,100%{transform:translateY(0)}
+}
+@keyframes s2-head{
+  0%,25%  {transform:translate(0,0)}
+  40%,82% {transform:translate(0,-26px)}
+  96%,100%{transform:translate(0,0)}
+}
+@keyframes s2-larm{
+  0%,12%  {transform:rotate(0deg)}
+  40%,82% {transform:rotate(-68deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-rarm{
+  0%,12%  {transform:rotate(0deg)}
+  40%,82% {transform:rotate(68deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-lleg{
+  0%,18%  {transform:rotate(0deg)}
+  20%,28% {transform:rotate(-5deg)}
+  38%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-rleg{
+  0%,18%  {transform:rotate(0deg)}
+  20%,28% {transform:rotate(5deg)}
+  38%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-lshin{
+  0%,18%  {transform:rotate(0deg)}
+  20%,28% {transform:rotate(4deg)}
+  38%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-rshin{
+  0%,18%  {transform:rotate(0deg)}
+  20%,28% {transform:rotate(-4deg)}
+  38%,82% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes s2-p1{0%,16%{opacity:1}20%,100%{opacity:0}}
+@keyframes s2-p2{0%,18%{opacity:0}21%,42%{opacity:1}46%,100%{opacity:0}}
+@keyframes s2-p3{0%,40%{opacity:0}44%,84%{opacity:1}88%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<g class="s2-bar">
+  <rect x="90" y="100" width="120" height="7" rx="3" fill="#e8ff00"/>
+  <circle cx="90" cy="103" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="210" cy="103" r="10" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+</g>
+<g class="s2-head">
+  <circle cx="150" cy="62" r="14" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="145" cy="59" r="2" fill="#f0f0f0"/>
+  <circle cx="155" cy="59" r="2" fill="#f0f0f0"/>
+</g>
+<!-- Torso static upright -->
+<line x1="150" y1="76" x2="150" y2="148" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+<line x1="125" y1="92" x2="175" y2="92" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+<circle cx="150" cy="148" r="6" fill="#ff4d00"/>
+<!-- Core brace indicator -->
+<path d="M142 100 Q138 124 142 145" fill="none" stroke="#00e676" stroke-width="2" stroke-dasharray="3,3" opacity="0.5"/>
+<g class="s2-larm">
+  <line x1="125" y1="92" x2="102" y2="105" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="102" cy="105" r="5" fill="#e8ff00"/>
+</g>
+<g class="s2-rarm">
+  <line x1="175" y1="92" x2="198" y2="105" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="198" cy="105" r="5" fill="#e8ff00"/>
+</g>
+<g class="s2-lleg">
+  <line x1="142" y1="148" x2="126" y2="192" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="126" cy="192" r="5" fill="#00b4ff"/>
+</g>
+<g class="s2-lshin">
+  <line x1="126" y1="192" x2="118" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="s2-rleg">
+  <line x1="158" y1="148" x2="174" y2="192" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="174" cy="192" r="5" fill="#00b4ff"/>
+</g>
+<g class="s2-rshin">
+  <line x1="174" y1="192" x2="182" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="s2-p1">① RACK — Core rígido</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="s2-p2">② DIP — Rápido y vertical</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="s2-p3">③ OVERHEAD — Lockout completo</text>
+</svg></div>
+<div id="canim-kbswing"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.kb-kb{animation:kb-kb 2.8s ease-in-out infinite}
+.kb-head{animation:kb-head 2.8s ease-in-out infinite}
+.kb-torso{animation:kb-torso 2.8s ease-in-out infinite;transform-origin:150px 145px}
+.kb-larm{animation:kb-larm 2.8s ease-in-out infinite;transform-origin:132px 108px}
+.kb-rarm{animation:kb-rarm 2.8s ease-in-out infinite;transform-origin:168px 108px}
+.kb-lleg{animation:kb-lleg 2.8s ease-in-out infinite;transform-origin:142px 145px}
+.kb-rleg{animation:kb-rleg 2.8s ease-in-out infinite;transform-origin:158px 145px}
+.kb-lshin{animation:kb-lshin 2.8s ease-in-out infinite;transform-origin:124px 188px}
+.kb-rshin{animation:kb-rshin 2.8s ease-in-out infinite;transform-origin:176px 188px}
+.kb-p1{animation:kb-p1 2.8s ease infinite}
+.kb-p2{animation:kb-p2 2.8s ease infinite}
+.kb-p3{animation:kb-p3 2.8s ease infinite}
+@keyframes kb-kb{
+  0%,10%  {transform:translate(0,0) rotate(0deg)}     /* overhead */
+  30%,48% {transform:translate(0,105px) rotate(20deg)} /* hinge back */
+  68%,85% {transform:translate(0,-5px) rotate(0deg)}  /* chest height */
+  96%,100%{transform:translate(0,0) rotate(0deg)}
+}
+@keyframes kb-head{
+  0%,10%  {transform:translate(0,-30px)}
+  30%,48% {transform:translate(-8px,0)}
+  68%,85% {transform:translate(0,-10px)}
+  96%,100%{transform:translate(0,-30px)}
+}
+@keyframes kb-torso{
+  0%,10%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(42deg)}
+  68%,85% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes kb-larm{
+  0%,10%  {transform:rotate(-55deg)}
+  30%,48% {transform:rotate(28deg)}
+  68%,85% {transform:rotate(-25deg)}
+  96%,100%{transform:rotate(-55deg)}
+}
+@keyframes kb-rarm{
+  0%,10%  {transform:rotate(55deg)}
+  30%,48% {transform:rotate(-28deg)}
+  68%,85% {transform:rotate(25deg)}
+  96%,100%{transform:rotate(55deg)}
+}
+@keyframes kb-lleg{
+  0%,10%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(-12deg)}
+  68%,85% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes kb-rleg{
+  0%,10%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(12deg)}
+  68%,85% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes kb-lshin{
+  0%,10%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(8deg)}
+  68%,85% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes kb-rshin{
+  0%,10%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(-8deg)}
+  68%,85% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes kb-p1{0%,12%{opacity:1}16%,100%{opacity:0}}
+@keyframes kb-p2{0%,14%{opacity:0}18%,65%{opacity:1}68%,100%{opacity:0}}
+@keyframes kb-p3{0%,63%{opacity:0}67%,87%{opacity:1}90%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<line x1="50" y1="228" x2="250" y2="228" stroke="#222" stroke-width="2"/>
+<!-- swing arc guide -->
+<path d="M150 228 Q90 160 150 60" fill="none" stroke="#e8ff00" stroke-width="1" stroke-dasharray="4,4" opacity="0.18"/>
+<!-- KETTLEBELL (animated) -->
+<g class="kb-kb">
+  <rect x="132" y="48" width="36" height="28" rx="5" fill="none" stroke="#e8ff00" stroke-width="3"/>
+  <path d="M140 48 Q150 36 160 48" fill="none" stroke="#e8ff00" stroke-width="3"/>
+  <circle cx="150" cy="62" r="5" fill="#e8ff00" opacity="0.3"/>
+</g>
+<g class="kb-head">
+  <circle cx="150" cy="62" r="13" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="146" cy="60" r="2" fill="#f0f0f0"/>
+  <circle cx="154" cy="60" r="2" fill="#f0f0f0"/>
+</g>
+<g class="kb-torso">
+  <line x1="150" y1="75" x2="150" y2="145" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="132" y1="90" x2="168" y2="90" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="145" r="6" fill="#ff4d00"/>
+</g>
+<g class="kb-larm">
+  <line x1="132" y1="90" x2="112" y2="128" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="112" cy="128" r="4" fill="#e8ff00"/>
+</g>
+<g class="kb-rarm">
+  <line x1="168" y1="90" x2="188" y2="128" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="188" cy="128" r="4" fill="#e8ff00"/>
+</g>
+<g class="kb-lleg">
+  <line x1="142" y1="145" x2="122" y2="190" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="122" cy="190" r="5" fill="#00b4ff"/>
+</g>
+<g class="kb-lshin">
+  <line x1="122" y1="190" x2="112" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="kb-rleg">
+  <line x1="158" y1="145" x2="178" y2="190" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="178" cy="190" r="5" fill="#00b4ff"/>
+</g>
+<g class="kb-rshin">
+  <line x1="178" y1="190" x2="188" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="kb-p1">① OVERHEAD — Plank vertical</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="kb-p2">② HINGE — La fuerza es de cadera</text>
+<text x="150" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="kb-p3">③ HIP DRIVE — Extensión explosiva</text>
+</svg></div>
+<div id="canim-wallball"><svg viewBox="0 0 300 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>
+.wb-ball{animation:wb-ball 3.2s ease-in-out infinite}
+.wb-head{animation:wb-head 3.2s ease-in-out infinite}
+.wb-torso{animation:wb-torso 3.2s ease-in-out infinite;transform-origin:150px 145px}
+.wb-larm{animation:wb-larm 3.2s ease-in-out infinite;transform-origin:128px 105px}
+.wb-rarm{animation:wb-rarm 3.2s ease-in-out infinite;transform-origin:172px 105px}
+.wb-lleg{animation:wb-lleg 3.2s ease-in-out infinite;transform-origin:150px 145px}
+.wb-rleg{animation:wb-rleg 3.2s ease-in-out infinite;transform-origin:150px 145px}
+.wb-lshin{animation:wb-lshin 3.2s ease-in-out infinite;transform-origin:118px 192px}
+.wb-rshin{animation:wb-rshin 3.2s ease-in-out infinite;transform-origin:182px 192px}
+.wb-p1{animation:wb-p1 3.2s ease infinite}
+.wb-p2{animation:wb-p2 3.2s ease infinite}
+.wb-p3{animation:wb-p3 3.2s ease infinite}
+@keyframes wb-ball{
+  0%,8%   {transform:translate(0,-62px)}   /* at target on wall */
+  18%,22% {transform:translate(0,-5px)}    /* catch at chest */
+  30%,48% {transform:translate(0,8px)}     /* squat hold */
+  68%,80% {transform:translate(0,-62px)}   /* thrown up */
+  96%,100%{transform:translate(0,-62px)}
+}
+@keyframes wb-head{
+  0%,8%   {transform:translate(0,-10px)}
+  18%,48% {transform:translate(0,0)}
+  55%,80% {transform:translate(0,-18px)}
+  96%,100%{transform:translate(0,-10px)}
+}
+@keyframes wb-torso{
+  0%,18%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(5deg)}
+  55%,80% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes wb-larm{
+  0%,8%   {transform:rotate(-48deg)}
+  18%,22% {transform:rotate(-15deg)}
+  30%,48% {transform:rotate(-10deg)}
+  68%,80% {transform:rotate(-52deg)}
+  96%,100%{transform:rotate(-48deg)}
+}
+@keyframes wb-rarm{
+  0%,8%   {transform:rotate(48deg)}
+  18%,22% {transform:rotate(15deg)}
+  30%,48% {transform:rotate(10deg)}
+  68%,80% {transform:rotate(52deg)}
+  96%,100%{transform:rotate(48deg)}
+}
+@keyframes wb-lleg{
+  0%,18%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(-28deg)}
+  62%,80% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes wb-rleg{
+  0%,18%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(28deg)}
+  62%,80% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes wb-lshin{
+  0%,18%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(20deg)}
+  62%,80% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes wb-rshin{
+  0%,18%  {transform:rotate(0deg)}
+  30%,48% {transform:rotate(-20deg)}
+  62%,80% {transform:rotate(0deg)}
+  96%,100%{transform:rotate(0deg)}
+}
+@keyframes wb-p1{0%,12%{opacity:1}16%,100%{opacity:0}}
+@keyframes wb-p2{0%,14%{opacity:0}18%,58%{opacity:1}62%,100%{opacity:0}}
+@keyframes wb-p3{0%,56%{opacity:0}60%,82%{opacity:1}86%,100%{opacity:0}}
+</style>
+<rect width="300" height="240" fill="#0f0f0f" rx="10"/>
+<!-- Wall on right -->
+<rect x="272" y="0" width="10" height="240" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+<!-- Target -->
+<circle cx="277" cy="55" r="14" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+<circle cx="277" cy="55" r="7" fill="none" stroke="#e8ff00" stroke-width="1.5"/>
+<circle cx="277" cy="55" r="2.5" fill="#e8ff00"/>
+<text x="265" y="30" text-anchor="middle" fill="#e8ff00" font-size="9" font-family="sans-serif">3m ♂</text>
+<line x1="50" y1="228" x2="270" y2="228" stroke="#222" stroke-width="2"/>
+<!-- BALL (animated) -->
+<g class="wb-ball">
+  <circle cx="220" cy="148" r="18" fill="none" stroke="#e8ff00" stroke-width="3"/>
+  <circle cx="220" cy="148" r="7" fill="#e8ff00" opacity="0.2"/>
+  <line x1="210" y1="138" x2="230" y2="158" stroke="#e8ff00" stroke-width="1.5" opacity="0.4"/>
+  <line x1="230" y1="138" x2="210" y2="158" stroke="#e8ff00" stroke-width="1.5" opacity="0.4"/>
+</g>
+<g class="wb-head">
+  <circle cx="150" cy="64" r="13" fill="#1a1a1a" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="146" cy="62" r="2" fill="#f0f0f0"/>
+  <circle cx="154" cy="62" r="2" fill="#f0f0f0"/>
+</g>
+<g class="wb-torso">
+  <line x1="150" y1="77" x2="150" y2="145" stroke="#f0f0f0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="128" y1="93" x2="172" y2="93" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="145" r="6" fill="#ff4d00"/>
+</g>
+<g class="wb-larm">
+  <line x1="128" y1="93" x2="108" y2="130" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="108" cy="130" r="4" fill="#e8ff00"/>
+</g>
+<g class="wb-rarm">
+  <line x1="172" y1="93" x2="192" y2="130" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="192" cy="130" r="4" fill="#e8ff00"/>
+</g>
+<g class="wb-lleg">
+  <line x1="142" y1="145" x2="118" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="118" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="wb-lshin">
+  <line x1="118" y1="195" x2="108" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g class="wb-rleg">
+  <line x1="158" y1="145" x2="182" y2="195" stroke="#f0f0f0" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="182" cy="195" r="5" fill="#00b4ff"/>
+</g>
+<g class="wb-rshin">
+  <line x1="182" y1="195" x2="192" y2="228" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+</g>
+<text x="135" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="wb-p1">① CATCH — Atrapar a la altura del pecho</text>
+<text x="135" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="wb-p2">② FULL SQUAT — Cadera bajo rodillas</text>
+<text x="135" y="18" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#e8ff00" class="wb-p3">③ THROW — Drive de piernas → diana</text>
+</svg></div>
+<div id="sdiag-snatch"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="sn-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="sn-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="sn-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">OVERHEAD SQUAT — RECEPCION</text>
+<rect x="38" y="28" width="204" height="7" rx="3.5" fill="#e8ff00"/>
+<rect x="30" y="16" width="10" height="28" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<rect x="240" y="16" width="10" height="28" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<line x1="140" y1="35" x2="140" y2="232" stroke="#e8ff00" stroke-width="1" stroke-dasharray="4,5" opacity="0.12"/>
+<path d="M118 148 C108 165 100 180 96 205 C104 210 114 210 120 205 C122 182 128 166 134 150 Z" fill="url(#sn-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="108" cy="202" rx="11" ry="8" fill="#00b4ff" opacity="0.75"/>
+<path d="M96 204 C92 215 90 225 89 232 C97 232 105 232 108 232 C108 224 110 215 112 204 Z" fill="url(#sn-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M146 150 C152 167 158 182 162 205 C168 210 178 210 182 205 C178 180 170 165 162 148 Z" fill="url(#sn-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="172" cy="202" rx="11" ry="8" fill="#00b4ff" opacity="0.75"/>
+<path d="M162 204 C164 215 166 225 167 232 C172 232 180 232 183 232 C182 225 180 215 176 204 Z" fill="url(#sn-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M108 80 C104 82 100 90 102 108 L110 148 C122 156 158 156 170 148 L178 108 C180 90 176 82 172 80 Z" fill="url(#sn-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="150" rx="22" ry="12" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="106" cy="84" rx="12" ry="9" fill="url(#sn-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="174" cy="84" rx="12" ry="9" fill="url(#sn-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M100 82 C82 70 68 56 52 36 C58 30 66 26 70 28 C84 46 98 62 110 78 Z" fill="url(#sn-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="52" cy="34" r="8" fill="#e8ff00" opacity="0.9"/>
+<path d="M174 80 C190 68 204 54 222 34 C226 28 234 30 236 36 C218 56 204 70 186 84 Z" fill="url(#sn-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="224" cy="34" r="8" fill="#e8ff00" opacity="0.9"/>
+<circle cx="140" cy="56" r="18" fill="url(#sn-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="134" cy="52" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="146" cy="52" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M134 62 Q140 66 146 62" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M122 50 Q130 38 140 36 Q150 38 158 50 Q152 40 140 38 Q128 40 122 50Z" fill="#2a1a0a"/>
+<rect x="133" y="72" width="14" height="12" rx="4" fill="url(#sn-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="52" y1="34" x2="20" y2="44" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="41" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codo</text>
+<text x="18" y="51" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">bloqueado</text>
+<line x1="140" y1="115" x2="262" y2="102" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="99" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+<text x="264" y="109" fill="#00e676" font-size="9" font-family="sans-serif">vertical</text>
+<line x1="140" y1="150" x2="262" y2="158" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="155" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera</text>
+<text x="264" y="165" fill="#ff4d00" font-size="9" font-family="sans-serif">bajo rodillas</text>
+<line x1="108" y1="202" x2="20" y2="196" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="193" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Rodillas</text>
+<text x="18" y="203" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">sobre pies</text>
+</svg></div>
+<div id="sdiag-clean"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="cl-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="cl-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="cl-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#888">FRONT RACK — SQUAT CLEAN</text>
+<rect x="88" y="86" width="104" height="7" rx="3.5" fill="#e8ff00"/>
+<circle cx="88" cy="89" r="10" fill="none" stroke="#e8ff00" stroke-width="2"/>
+<circle cx="192" cy="89" r="10" fill="none" stroke="#e8ff00" stroke-width="2"/>
+<path d="M114 155 C104 172 96 188 92 212 C100 216 112 216 118 212 C120 190 128 174 136 157 Z" fill="url(#cl-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="104" cy="208" rx="11" ry="8" fill="#00b4ff" opacity="0.75"/>
+<path d="M92 210 C88 220 86 228 85 232 C94 232 102 232 106 232 C106 224 108 216 110 210 Z" fill="url(#cl-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M146 157 C154 174 162 190 166 212 C172 216 184 216 190 212 C186 188 178 172 168 155 Z" fill="url(#cl-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="178" cy="208" rx="11" ry="8" fill="#00b4ff" opacity="0.75"/>
+<path d="M166 210 C168 218 170 225 172 232 C176 232 184 232 188 232 C186 226 182 218 178 210 Z" fill="url(#cl-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M112 86 C108 88 104 96 106 115 L114 155 C126 162 154 162 166 155 L174 115 C176 96 172 88 168 86 Z" fill="url(#cl-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="156" rx="22" ry="12" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="110" cy="90" rx="12" ry="9" fill="url(#cl-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="170" cy="90" rx="12" ry="9" fill="url(#cl-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M106 90 C96 88 88 88 82 88 C80 94 80 100 84 102 C90 102 98 100 108 96 Z" fill="url(#cl-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="82" cy="90" r="9" fill="#e8ff00" opacity="0.9"/>
+<path d="M172 90 C182 88 190 88 198 88 C200 94 200 100 196 102 C190 102 182 100 172 96 Z" fill="url(#cl-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="198" cy="90" r="9" fill="#e8ff00" opacity="0.9"/>
+<circle cx="140" cy="62" r="18" fill="url(#cl-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="134" cy="58" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="146" cy="58" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M134 68 Q140 72 146 68" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M122 56 Q130 44 140 42 Q150 44 158 56 Q152 46 140 44 Q128 46 122 56Z" fill="#2a1a0a"/>
+<rect x="133" y="78" width="14" height="10" rx="4" fill="url(#cl-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="82" y1="90" x2="20" y2="78" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="75" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codos</text>
+<text x="18" y="85" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">MUY altos</text>
+<line x1="140" y1="100" x2="262" y2="88" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="85" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+<text x="264" y="95" fill="#00e676" font-size="9" font-family="sans-serif">vertical</text>
+<line x1="140" y1="156" x2="262" y2="164" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="161" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera ATF</text>
+<line x1="140" y1="89" x2="262" y2="112" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>
+<text x="264" y="109" fill="#aaa" font-size="9" font-family="sans-serif">Barra en</text>
+<text x="264" y="119" fill="#aaa" font-size="9" font-family="sans-serif">claviculas</text>
+</svg></div>
+<div id="sdiag-cjerk"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="cj2-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="cj2-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="cj2-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="30" y1="232" x2="250" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">SPLIT JERK — RECEPCION</text>
+<rect x="34" y="26" width="212" height="7" rx="3.5" fill="#e8ff00"/>
+<rect x="26" y="15" width="10" height="26" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<rect x="244" y="15" width="10" height="26" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<path d="M96 148 C84 165 76 186 72 216 C82 222 96 222 102 216 C104 190 110 170 122 154 Z" fill="url(#cj2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="84" cy="212" rx="12" ry="8" fill="#00b4ff" opacity="0.75"/>
+<path d="M72 214 C68 222 66 228 65 232 C76 232 88 232 92 232 C90 226 88 218 86 214 Z" fill="url(#cj2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M148 148 C162 162 174 182 186 212 C192 216 202 214 206 208 C196 180 186 160 166 148 Z" fill="url(#cj2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="196" cy="210" rx="12" ry="7" fill="#00b4ff" opacity="0.6"/>
+<path d="M188 212 C194 220 200 226 204 232 C210 232 218 232 220 232 C216 226 210 218 204 212 Z" fill="url(#cj2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M110 74 C106 76 102 86 104 106 L112 150 C124 158 158 156 170 148 L176 106 C178 86 172 76 168 74 Z" fill="url(#cj2-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="151" rx="22" ry="11" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="108" cy="78" rx="13" ry="9" fill="url(#cj2-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="172" cy="78" rx="13" ry="9" fill="url(#cj2-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M102 76 C88 64 74 52 54 32 C58 26 66 22 72 24 C86 42 100 56 112 72 Z" fill="url(#cj2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="56" cy="30" r="8" fill="#e8ff00" opacity="0.9"/>
+<path d="M172 74 C186 62 200 50 220 32 C224 26 232 28 234 34 C216 54 202 66 182 80 Z" fill="url(#cj2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="222" cy="32" r="8" fill="#e8ff00" opacity="0.9"/>
+<circle cx="140" cy="50" r="18" fill="url(#cj2-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="134" cy="46" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="146" cy="46" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M134 56 Q140 60 146 56" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M122 48 Q130 36 140 34 Q150 36 158 48 Q152 38 140 36 Q128 38 122 48Z" fill="#2a1a0a"/>
+<rect x="133" y="66" width="14" height="10" rx="4" fill="url(#cj2-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="56" y1="30" x2="20" y2="40" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="37" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Brazos</text>
+<text x="18" y="47" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">bloqueados</text>
+<line x1="140" y1="112" x2="262" y2="100" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="97" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+<text x="264" y="107" fill="#00e676" font-size="9" font-family="sans-serif">erguido</text>
+<line x1="84" y1="212" x2="20" y2="202" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="199" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Rodilla 90 grados</text>
+<line x1="196" y1="210" x2="262" y2="202" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="199" fill="#00b4ff" font-size="9" font-family="sans-serif">Pie trasero</text>
+<text x="264" y="209" fill="#00b4ff" font-size="9" font-family="sans-serif">en punta</text>
+</svg></div>
+<div id="sdiag-backsquat"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <line x1="55" y1="188" x2="225" y2="188" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- depth line: ATF -->
+  <line x1="55" y1="130" x2="225" y2="130" stroke="#e8ff00" stroke-width="1" stroke-dasharray="5,4" opacity=".4"/>
+  <text x="228" y="133" fill="#e8ff00" font-size="8" font-family="sans-serif" opacity=".6">ATF</text>
+  <!-- bar on traps -->
+  <rect x="72" y="52" width="136" height="6" rx="3" fill="#aaa"/>
+  <circle cx="72" cy="55" r="10" fill="none" stroke="#aaa" stroke-width="3"/>
+  <circle cx="208" cy="55" r="10" fill="none" stroke="#aaa" stroke-width="3"/>
+  <!-- head -->
+  <circle cx="140" cy="35" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <!-- torso: slight forward lean -->
+  <line x1="140" y1="45" x2="135" y2="100" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- arms gripping bar -->
+  <line x1="135" y1="58" x2="78" y2="55" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="135" y1="58" x2="202" y2="55" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- thighs parallel or below -->
+  <line x1="135" y1="100" x2="100" y2="138" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="135" y1="100" x2="170" y2="138" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- shins -->
+  <line x1="100" y1="138" x2="88" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="170" y1="138" x2="182" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="100" cy="138" r="5" fill="#00b4ff"/>
+  <circle cx="170" cy="138" r="5" fill="#00b4ff"/>
+  <circle cx="135" cy="100" r="6" fill="#ff4d00"/>
+  <!-- spine neutral arc -->
+  <path d="M135 58 Q132 78 135 100" fill="none" stroke="#00e676" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <!-- ANNOTATIONS -->
+  <line x1="78" y1="55" x2="28" y2="42" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="39" fill="#aaa" font-size="9" font-family="sans-serif" text-anchor="end">Barra en</text>
+  <text x="26" y="49" fill="#aaa" font-size="9" font-family="sans-serif" text-anchor="end">trapecios</text>
+  <line x1="132" y1="79" x2="28" y2="85" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="82" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">Espalda</text>
+  <text x="26" y="92" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">neutra</text>
+  <line x1="135" y1="100" x2="28" y2="112" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="109" fill="#ff4d00" font-size="9" font-family="sans-serif" text-anchor="end">Hip crease</text>
+  <text x="26" y="119" fill="#ff4d00" font-size="9" font-family="sans-serif" text-anchor="end">bajo rodilla</text>
+  <line x1="170" y1="138" x2="262" y2="130" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="127" fill="#00b4ff" font-size="9" font-family="sans-serif">Rodillas</text>
+  <text x="264" y="137" fill="#00b4ff" font-size="9" font-family="sans-serif">sobre pies</text>
+  <line x1="140" y1="188" x2="262" y2="175" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="172" fill="#aaa" font-size="9" font-family="sans-serif">Talones</text>
+  <text x="264" y="182" fill="#aaa" font-size="9" font-family="sans-serif">en suelo</text>
+</svg></div>
+<div id="sdiag-frontsquat"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <line x1="55" y1="188" x2="225" y2="188" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- bar front rack -->
+  <rect x="100" y="58" width="80" height="6" rx="3" fill="#e8ff00"/>
+  <!-- head -->
+  <circle cx="140" cy="36" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <!-- torso fully vertical (key difference) -->
+  <line x1="140" y1="46" x2="140" y2="100" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- elbows high - pointing forward -->
+  <line x1="140" y1="64" x2="100" y2="60" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="140" y1="64" x2="180" y2="60" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="100" cy="60" r="5" fill="#e8ff00"/>
+  <circle cx="180" cy="60" r="5" fill="#e8ff00"/>
+  <!-- thighs below parallel -->
+  <line x1="140" y1="100" x2="100" y2="140" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="100" x2="180" y2="140" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- shins forward lean (more ankle mobility) -->
+  <line x1="100" y1="140" x2="85" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="180" y1="140" x2="195" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="100" cy="140" r="5" fill="#00b4ff"/>
+  <circle cx="180" cy="140" r="5" fill="#00b4ff"/>
+  <circle cx="140" cy="100" r="6" fill="#ff4d00"/>
+  <!-- vertical torso line -->
+  <line x1="140" y1="36" x2="140" y2="188" stroke="#00e676" stroke-width="1" stroke-dasharray="4,3" opacity=".4"/>
+  <!-- ANNOTATIONS -->
+  <line x1="100" y1="60" x2="28" y2="48" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="45" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codos</text>
+  <text x="26" y="55" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">ALTOS</text>
+  <line x1="140" y1="73" x2="262" y2="60" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="57" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+  <text x="264" y="67" fill="#00e676" font-size="9" font-family="sans-serif">VERTICAL ↕</text>
+  <line x1="140" y1="100" x2="262" y2="108" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="105" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera bajo</text>
+  <text x="264" y="115" fill="#ff4d00" font-size="9" font-family="sans-serif">rodillas</text>
+  <line x1="85" y1="188" x2="28" y2="175" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="172" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Movilidad</text>
+  <text x="26" y="182" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">tobillo clave</text>
+</svg></div>
+<div id="sdiag-deadlift"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="dl-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="dl-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="dl-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">SETUP — POSICION DE SALIDA</text>
+<rect x="42" y="208" width="196" height="9" rx="4" fill="#e8ff00"/>
+<rect x="34" y="192" width="12" height="32" rx="6" fill="#444" stroke="#e8ff00" stroke-width="2"/>
+<rect x="234" y="192" width="12" height="32" rx="6" fill="#444" stroke="#e8ff00" stroke-width="2"/>
+<line x1="140" y1="30" x2="140" y2="208" stroke="#e8ff00" stroke-width="1" stroke-dasharray="4,5" opacity="0.15"/>
+<path d="M118 138 C110 160 104 180 100 210 C108 214 120 214 126 210 C128 182 132 162 140 142 Z" fill="url(#dl-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="112" cy="206" rx="12" ry="8" fill="#00b4ff" opacity="0.7"/>
+<path d="M100 208 C96 218 94 226 93 232 C102 232 112 232 116 232 C116 224 116 216 114 208 Z" fill="url(#dl-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M142 142 C150 162 156 182 158 210 C164 214 176 214 182 210 C178 180 172 160 162 138 Z" fill="url(#dl-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="170" cy="206" rx="12" ry="8" fill="#00b4ff" opacity="0.7"/>
+<path d="M158 208 C160 216 162 224 163 232 C168 232 178 232 182 232 C180 226 178 218 174 208 Z" fill="url(#dl-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M96 76 C92 78 86 88 88 108 L100 140 C116 150 162 150 176 140 L184 108 C186 88 180 78 174 76 Z" fill="url(#dl-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="142" rx="24" ry="12" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="94" cy="80" rx="13" ry="10" fill="url(#dl-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="178" cy="80" rx="13" ry="10" fill="url(#dl-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M134 70 Q130 106 140 140" fill="none" stroke="#00e676" stroke-width="2.5" stroke-dasharray="4,3" opacity="0.7"/>
+<path d="M88 80 C80 108 76 140 74 170 C80 174 88 174 92 170 C94 142 98 110 104 84 Z" fill="url(#dl-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="78" cy="168" r="8" fill="#e8ff00" opacity="0.9"/>
+<path d="M178 80 C186 108 190 140 192 170 C196 172 202 170 204 166 C202 138 198 106 176 84 Z" fill="url(#dl-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="194" cy="168" r="8" fill="#e8ff00" opacity="0.9"/>
+<circle cx="130" cy="50" r="18" fill="url(#dl-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="124" cy="46" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="136" cy="46" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M124 56 Q130 60 136 56" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M113 48 Q120 36 130 34 Q140 36 147 46 Q141 38 130 36 Q120 38 113 48Z" fill="#2a1a0a"/>
+<rect x="123" y="66" width="14" height="10" rx="4" fill="url(#dl-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="130" y1="100" x2="20" y2="82" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="79" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">Columna</text>
+<text x="18" y="89" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">neutra</text>
+<line x1="78" y1="168" x2="20" y2="158" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="155" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Brazos</text>
+<text x="18" y="165" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">rectos</text>
+<line x1="140" y1="142" x2="262" y2="148" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="145" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera</text>
+<text x="264" y="155" fill="#ff4d00" font-size="9" font-family="sans-serif">en bisagra</text>
+<line x1="112" y1="206" x2="20" y2="212" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="209" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Rodilla</text>
+<text x="18" y="219" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">sobre pie</text>
+<line x1="140" y1="208" x2="262" y2="194" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="191" fill="#e8ff00" font-size="9" font-family="sans-serif">Barra sobre</text>
+<text x="264" y="201" fill="#e8ff00" font-size="9" font-family="sans-serif">metatarsos</text>
+</svg></div>
+<div id="sdiag-press"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <line x1="60" y1="190" x2="220" y2="190" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- bar overhead lockout -->
+  <rect x="72" y="18" width="136" height="6" rx="3" fill="#e8ff00"/>
+  <circle cx="72" cy="21" r="9" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="208" cy="21" r="9" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <!-- head (slightly back — bar passes in front of face) -->
+  <circle cx="140" cy="48" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <!-- torso upright, core tight -->
+  <line x1="140" y1="58" x2="140" y2="120" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- arms locked overhead -->
+  <line x1="140" y1="70" x2="80" y2="24" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="140" y1="70" x2="200" y2="24" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="80" cy="24" r="4" fill="#e8ff00"/>
+  <circle cx="200" cy="24" r="4" fill="#e8ff00"/>
+  <!-- legs straight, feet shoulder width -->
+  <line x1="140" y1="120" x2="115" y2="160" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="120" x2="165" y2="160" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="115" y1="160" x2="108" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="165" y1="160" x2="172" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- glutes tight, core braced line -->
+  <line x1="140" y1="90" x2="140" y2="120" stroke="#00e676" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <!-- ANNOTATIONS -->
+  <line x1="80" y1="24" x2="28" y2="24" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="21" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codos</text>
+  <text x="26" y="31" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">bloqueados</text>
+  <line x1="140" y1="48" x2="262" y2="36" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="33" fill="#aaa" font-size="9" font-family="sans-serif">Cabeza</text>
+  <text x="264" y="43" fill="#aaa" font-size="9" font-family="sans-serif">atrás al subir</text>
+  <line x1="140" y1="90" x2="262" y2="82" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="79" fill="#00e676" font-size="9" font-family="sans-serif">Core rígido</text>
+  <text x="264" y="89" fill="#00e676" font-size="9" font-family="sans-serif">glúteos apret.</text>
+  <line x1="140" y1="120" x2="262" y2="128" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="125" fill="#ff4d00" font-size="9" font-family="sans-serif">Sin lean-back</text>
+  <text x="264" y="135" fill="#ff4d00" font-size="9" font-family="sans-serif">lumbar</text>
+</svg></div>
+<div id="sdiag-pushpress"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <line x1="60" y1="190" x2="220" y2="190" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- bar overhead -->
+  <rect x="72" y="18" width="136" height="6" rx="3" fill="#e8ff00"/>
+  <circle cx="72" cy="21" r="9" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="208" cy="21" r="9" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <circle cx="140" cy="46" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <line x1="140" y1="56" x2="140" y2="115" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="68" x2="80" y2="24" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="140" y1="68" x2="200" y2="24" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="80" cy="24" r="4" fill="#e8ff00"/>
+  <circle cx="200" cy="24" r="4" fill="#e8ff00"/>
+  <!-- slight knee bend at lockout -->
+  <line x1="140" y1="115" x2="112" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="115" x2="168" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="112" y1="155" x2="104" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="168" y1="155" x2="176" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- dip arrow indicator -->
+  <line x1="68" y1="115" x2="68" y2="135" stroke="#ffa500" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="55" y="128" fill="#ffa500" font-size="9" font-family="sans-serif" text-anchor="end">Dip</text>
+  <text x="55" y="138" fill="#ffa500" font-size="9" font-family="sans-serif" text-anchor="end">~10cm</text>
+  <!-- ANNOTATIONS -->
+  <line x1="80" y1="24" x2="28" y2="24" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="21" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Lockout</text>
+  <text x="26" y="31" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">completo</text>
+  <line x1="140" y1="85" x2="262" y2="72" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="69" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+  <text x="264" y="79" fill="#00e676" font-size="9" font-family="sans-serif">vertical (dip)</text>
+  <line x1="112" y1="155" x2="262" y2="148" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="145" fill="#00b4ff" font-size="9" font-family="sans-serif">Piernas</text>
+  <text x="264" y="155" fill="#00b4ff" font-size="9" font-family="sans-serif">impulso → arriba</text>
+</svg></div>
+<div id="sdiag-thruster"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="th2-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="th2-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="th2-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">LOCKOUT OVERHEAD — SIN PAUSA</text>
+<rect x="36" y="30" width="208" height="7" rx="3.5" fill="#e8ff00"/>
+<rect x="28" y="18" width="10" height="28" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<rect x="242" y="18" width="10" height="28" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<path d="M122 148 C116 168 112 188 110 212 C118 216 130 216 134 212 C134 190 136 170 140 152 Z" fill="url(#th2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="118" cy="208" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M110 210 C107 220 106 226 105 232 C114 232 122 232 126 232 C126 224 126 216 124 210 Z" fill="url(#th2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M142 152 C146 170 150 190 152 212 C156 216 168 216 174 212 C172 188 168 168 160 148 Z" fill="url(#th2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="164" cy="208" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M152 210 C154 218 156 224 158 232 C163 232 172 232 176 232 C174 226 172 218 168 210 Z" fill="url(#th2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M112 76 C108 78 104 88 106 108 L114 150 C126 158 154 158 166 150 L174 108 C176 88 172 78 168 76 Z" fill="url(#th2-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="151" rx="22" ry="11" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="110" cy="80" rx="12" ry="9" fill="url(#th2-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="170" cy="80" rx="12" ry="9" fill="url(#th2-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M104 78 C90 66 76 54 58 34 C62 28 70 24 76 26 C90 44 104 58 114 74 Z" fill="url(#th2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="60" cy="32" r="8" fill="#e8ff00" opacity="0.9"/>
+<path d="M168 76 C182 64 196 52 216 34 C220 28 228 30 230 36 C212 56 198 68 178 82 Z" fill="url(#th2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="218" cy="34" r="8" fill="#e8ff00" opacity="0.9"/>
+<circle cx="140" cy="52" r="18" fill="url(#th2-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="134" cy="48" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="146" cy="48" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M134 58 Q140 62 146 58" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M122 50 Q130 38 140 36 Q150 38 158 50 Q152 40 140 38 Q128 40 122 50Z" fill="#2a1a0a"/>
+<rect x="133" y="68" width="14" height="10" rx="4" fill="url(#th2-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="60" y1="32" x2="20" y2="42" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="39" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codos</text>
+<text x="18" y="49" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">bloqueados</text>
+<line x1="140" y1="114" x2="262" y2="102" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="99" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+<text x="264" y="109" fill="#00e676" font-size="9" font-family="sans-serif">vertical</text>
+<line x1="140" y1="151" x2="262" y2="158" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="155" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera</text>
+<text x="264" y="165" fill="#ff4d00" font-size="9" font-family="sans-serif">extendida</text>
+</svg></div>
+<div id="sdiag-wallball"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="wb2-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="wb2-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="wb2-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+  <radialGradient id="wb2-ball" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#111"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<rect x="252" y="0" width="10" height="240" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+<circle cx="257" cy="48" r="14" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+<circle cx="257" cy="48" r="7" fill="none" stroke="#e8ff00" stroke-width="1.5"/>
+<circle cx="257" cy="48" r="3" fill="#e8ff00"/>
+<text x="248" y="24" fill="#e8ff00" font-size="8" font-family="sans-serif" text-anchor="middle">3m</text>
+<line x1="30" y1="232" x2="250" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="120" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">FULL SQUAT — POSICION BASE</text>
+<circle cx="170" cy="128" r="22" fill="url(#wb2-ball)" stroke="#e8ff00" stroke-width="2.5"/>
+<text x="170" y="132" text-anchor="middle" fill="#e8ff00" font-size="10" font-weight="700" font-family="sans-serif">9kg</text>
+<path d="M170 128 Q210 80 250 50" fill="none" stroke="#e8ff00" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.35"/>
+<path d="M102 148 C90 168 82 190 78 218 C88 224 102 224 108 218 C110 194 116 172 126 154 Z" fill="url(#wb2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="88" cy="214" rx="12" ry="8" fill="#00b4ff" opacity="0.7"/>
+<path d="M78 216 C74 224 72 229 71 232 C82 232 92 232 96 232 C96 226 94 220 92 216 Z" fill="url(#wb2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M138 154 C148 172 156 192 160 218 C166 224 180 224 186 218 C182 190 174 168 162 148 Z" fill="url(#wb2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="174" cy="214" rx="12" ry="8" fill="#00b4ff" opacity="0.7"/>
+<path d="M160 216 C162 222 164 228 165 232 C170 232 180 232 184 232 C182 228 180 222 176 216 Z" fill="url(#wb2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M106 90 C102 92 98 102 100 120 L110 152 C120 160 150 160 162 150 L170 120 C172 102 168 92 164 90 Z" fill="url(#wb2-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="134" cy="153" rx="24" ry="12" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="104" cy="94" rx="12" ry="9" fill="url(#wb2-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="166" cy="94" rx="12" ry="9" fill="url(#wb2-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M100 92 C94 106 100 120 148 128 C152 122 154 114 150 108 C120 104 108 100 106 88 Z" fill="url(#wb2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<path d="M166 92 C172 104 172 118 192 124 C196 118 196 110 192 106 C180 110 170 106 166 88 Z" fill="url(#wb2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="134" cy="66" r="18" fill="url(#wb2-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="128" cy="62" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="140" cy="62" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M128 72 Q134 76 140 72" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M116 64 Q122 52 134 50 Q144 52 152 62 Q146 54 134 52 Q122 54 116 64Z" fill="#2a1a0a"/>
+<rect x="127" y="82" width="14" height="10" rx="4" fill="url(#wb2-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="170" y1="128" x2="20" y2="112" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="109" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Balon al</text>
+<text x="18" y="119" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">pecho</text>
+<line x1="134" y1="153" x2="20" y2="165" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="162" fill="#ff4d00" font-size="9" font-family="sans-serif" text-anchor="end">Cadera ATF</text>
+<line x1="88" y1="214" x2="20" y2="210" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="207" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Rodillas</text>
+<text x="18" y="217" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">sobre pies</text>
+</svg></div>
+<div id="sdiag-kbswing"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="ks2-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="ks2-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="ks2-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+  <radialGradient id="ks2-kb" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#111"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">HIP HINGE — BACKSWING</text>
+<path d="M140 232 Q80 180 106 80" fill="none" stroke="#e8ff00" stroke-width="1.5" stroke-dasharray="5,5" opacity="0.2"/>
+<rect x="118" y="188" width="44" height="34" rx="8" fill="url(#ks2-kb)" stroke="#e8ff00" stroke-width="2.5"/>
+<path d="M128 188 Q140 174 152 188" fill="none" stroke="#e8ff00" stroke-width="3"/>
+<text x="140" y="209" text-anchor="middle" fill="#e8ff00" font-size="10" font-weight="700" font-family="sans-serif">KB</text>
+<path d="M114 142 C108 162 104 180 102 210 C110 215 122 215 128 210 C128 184 130 165 136 146 Z" fill="url(#ks2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="112" cy="206" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M102 208 C99 218 98 225 97 232 C106 232 116 232 120 232 C118 224 116 216 114 208 Z" fill="url(#ks2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M148 146 C154 165 158 184 160 210 C166 215 178 215 182 210 C180 180 176 162 168 142 Z" fill="url(#ks2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="170" cy="206" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M160 208 C162 216 163 224 164 232 C169 232 178 232 182 232 C180 226 178 216 174 208 Z" fill="url(#ks2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M82 88 C78 90 72 100 74 118 L88 145 C106 154 164 150 178 142 L188 116 C190 98 184 90 180 90 Z" fill="url(#ks2-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="135" cy="146" rx="26" ry="12" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="80" cy="92" rx="13" ry="9" fill="url(#ks2-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="182" cy="92" rx="13" ry="9" fill="url(#ks2-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M100 92 Q136 94 178 96" fill="none" stroke="#00e676" stroke-width="2.5" stroke-dasharray="4,3" opacity="0.7"/>
+<path d="M78 90 C80 112 96 148 118 186 C124 188 130 186 132 182 C110 146 98 112 92 90 Z" fill="url(#ks2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<path d="M182 92 C180 114 164 150 148 186 C152 190 158 190 162 186 C180 150 192 114 188 94 Z" fill="url(#ks2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="124" cy="184" r="7" fill="#e8ff00" opacity="0.9"/>
+<circle cx="156" cy="184" r="7" fill="#e8ff00" opacity="0.9"/>
+<circle cx="80" cy="66" r="17" fill="url(#ks2-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="75" cy="62" rx="2.5" ry="3" fill="#2a1a0a"/>
+<ellipse cx="86" cy="62" rx="2.5" ry="3" fill="#2a1a0a"/>
+<path d="M75 72 Q80 75 86 72" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M64 63 Q70 52 80 50 Q90 52 96 62 Q90 54 80 52 Q70 54 64 63Z" fill="#2a1a0a"/>
+<rect x="73" y="81" width="13" height="9" rx="3" fill="url(#ks2-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="136" y1="95" x2="262" y2="74" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="71" fill="#00e676" font-size="9" font-family="sans-serif">Espalda</text>
+<text x="264" y="81" fill="#00e676" font-size="9" font-family="sans-serif">plana</text>
+<line x1="135" y1="146" x2="262" y2="140" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="137" fill="#ff4d00" font-size="9" font-family="sans-serif">Bisagra</text>
+<text x="264" y="147" fill="#ff4d00" font-size="9" font-family="sans-serif">de cadera</text>
+<line x1="140" y1="196" x2="262" y2="192" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="189" fill="#e8ff00" font-size="9" font-family="sans-serif">KB entre</text>
+<text x="264" y="199" fill="#e8ff00" font-size="9" font-family="sans-serif">piernas</text>
+</svg></div>
+<div id="sdiag-kbsnatch"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <line x1="55" y1="188" x2="225" y2="188" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- KB lockout overhead -->
+  <rect x="108" y="8" width="16" height="10" rx="2" fill="none" stroke="#e8ff00" stroke-width="2.5"/>
+  <path d="M112 8 Q116 2 120 8" fill="none" stroke="#e8ff00" stroke-width="2"/>
+  <circle cx="116" cy="22" r="3" fill="#e8ff00"/>
+  <!-- figure -->
+  <circle cx="140" cy="46" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <line x1="140" y1="56" x2="140" y2="112" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- one arm overhead, KB above wrist -->
+  <line x1="140" y1="68" x2="116" y2="22" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- elbow locked -->
+  <circle cx="128" cy="45" r="4" fill="#e8ff00"/>
+  <!-- other arm relaxed at side -->
+  <line x1="140" y1="72" x2="158" y2="105" stroke="#f0f0f0" stroke-width="2" stroke-linecap="round"/>
+  <!-- hips -->
+  <circle cx="140" cy="112" r="6" fill="#ff4d00"/>
+  <line x1="140" y1="112" x2="118" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="112" x2="162" y2="155" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="118" y1="155" x2="110" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="162" y1="155" x2="170" y2="188" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- wrist over KB indicator -->
+  <line x1="116" y1="18" x2="80" y2="8" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="78" y="8" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">KB sobre muñeca</text>
+  <!-- ANNOTATIONS -->
+  <line x1="128" y1="45" x2="28" y2="40" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="37" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Codo</text>
+  <text x="26" y="47" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">bloqueado</text>
+  <line x1="140" y1="84" x2="262" y2="72" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="69" fill="#00e676" font-size="9" font-family="sans-serif">Torso</text>
+  <text x="264" y="79" fill="#00e676" font-size="9" font-family="sans-serif">vertical</text>
+  <line x1="140" y1="112" x2="262" y2="108" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="105" fill="#ff4d00" font-size="9" font-family="sans-serif">Ext. cadera</text>
+  <text x="264" y="115" fill="#ff4d00" font-size="9" font-family="sans-serif">completa</text>
+</svg></div>
+<div id="sdiag-pullup"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <!-- bar structure -->
+  <rect x="40" y="18" width="200" height="8" rx="4" fill="#888"/>
+  <rect x="38" y="0" width="10" height="26" rx="3" fill="#555"/>
+  <rect x="232" y="0" width="10" height="26" rx="3" fill="#555"/>
+  <!-- C2B position: chest touching bar -->
+  <circle cx="140" cy="44" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <!-- hands on bar -->
+  <circle cx="100" cy="22" r="5" fill="#e8ff00"/>
+  <circle cx="180" cy="22" r="5" fill="#e8ff00"/>
+  <!-- arms bent pulling -->
+  <line x1="100" y1="22" x2="115" y2="44" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="180" y1="22" x2="165" y2="44" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- chest at bar level -->
+  <line x1="115" y1="44" x2="140" y2="26" stroke="#f0f0f0" stroke-width="1.5" stroke-dasharray="3,2" opacity=".5"/>
+  <!-- torso -->
+  <line x1="140" y1="54" x2="140" y2="102" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- C2B contact point -->
+  <circle cx="140" cy="26" r="4" fill="#ff4d00"/>
+  <text x="155" y="25" fill="#ff4d00" font-size="8" font-family="sans-serif">CONTACTO</text>
+  <!-- legs together -->
+  <line x1="140" y1="102" x2="128" y2="145" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="102" x2="152" y2="145" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="128" y1="145" x2="124" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="152" y1="145" x2="156" y2="190" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- ANNOTATIONS -->
+  <line x1="100" y1="22" x2="28" y2="22" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="19" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Grip</text>
+  <text x="26" y="29" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">pronado</text>
+  <line x1="115" y1="33" x2="28" y2="52" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="49" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">Codos</text>
+  <text x="26" y="59" fill="#00b4ff" font-size="9" font-family="sans-serif" text-anchor="end">hacia cadera</text>
+  <line x1="140" y1="78" x2="262" y2="68" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="65" fill="#00e676" font-size="9" font-family="sans-serif">Escápulas</text>
+  <text x="264" y="75" fill="#00e676" font-size="9" font-family="sans-serif">activas</text>
+  <line x1="140" y1="102" x2="262" y2="110" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="107" fill="#aaa" font-size="9" font-family="sans-serif">Core</text>
+  <text x="264" y="117" fill="#aaa" font-size="9" font-family="sans-serif">tensado</text>
+</svg></div>
+<div id="sdiag-toes2bar"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <rect x="40" y="18" width="200" height="8" rx="4" fill="#888"/>
+  <rect x="38" y="0" width="10" height="26" rx="3" fill="#555"/>
+  <rect x="232" y="0" width="10" height="26" rx="3" fill="#555"/>
+  <!-- T2B: feet at bar -->
+  <circle cx="140" cy="48" r="10" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <circle cx="100" cy="22" r="5" fill="#e8ff00"/>
+  <circle cx="180" cy="22" r="5" fill="#e8ff00"/>
+  <line x1="100" y1="22" x2="118" y2="48" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="180" y1="22" x2="162" y2="48" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- torso -->
+  <line x1="140" y1="58" x2="140" y2="95" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- legs up to bar — L shape -->
+  <line x1="140" y1="95" x2="116" y2="28" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="140" y1="95" x2="164" y2="28" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- feet touching bar -->
+  <circle cx="116" cy="22" r="5" fill="#e8ff00"/>
+  <circle cx="164" cy="22" r="5" fill="#e8ff00"/>
+  <!-- hips compressed -->
+  <circle cx="140" cy="95" r="6" fill="#ff4d00"/>
+  <!-- ANNOTATIONS -->
+  <line x1="116" y1="22" x2="28" y2="22" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="19" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Pies tocan</text>
+  <text x="26" y="29" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">la barra</text>
+  <line x1="140" y1="76" x2="262" y2="65" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="62" fill="#ff4d00" font-size="9" font-family="sans-serif">Core</text>
+  <text x="264" y="72" fill="#ff4d00" font-size="9" font-family="sans-serif">comprimido</text>
+  <line x1="140" y1="95" x2="262" y2="100" stroke="#00b4ff" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="97" fill="#00b4ff" font-size="9" font-family="sans-serif">Cadera</text>
+  <text x="264" y="107" fill="#00b4ff" font-size="9" font-family="sans-serif">flexionada</text>
+  <line x1="118" y1="48" x2="28" y2="58" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="55" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">Brazos</text>
+  <text x="26" y="65" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">rectos</text>
+</svg></div>
+<div id="sdiag-hspu"><svg viewBox="0 0 280 200" width="100%" style="display:block;max-height:180px" xmlns="http://www.w3.org/2000/svg">
+  <rect width="280" height="200" fill="#0f0f0f" rx="8"/>
+  <!-- wall -->
+  <rect x="230" y="0" width="8" height="200" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1"/>
+  <!-- floor -->
+  <line x1="40" y1="188" x2="238" y2="188" stroke="#2a2a2a" stroke-width="1.5"/>
+  <!-- hand positions on floor -->
+  <circle cx="108" cy="184" r="7" fill="#888"/>
+  <circle cx="160" cy="184" r="7" fill="#888"/>
+  <!-- head crown near floor (tripod) -->
+  <circle cx="134" cy="162" r="9" fill="none" stroke="#f0f0f0" stroke-width="2.5"/>
+  <!-- triangle: hands + head -->
+  <line x1="108" y1="184" x2="134" y2="166" stroke="#e8ff00" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+  <line x1="160" y1="184" x2="134" y2="166" stroke="#e8ff00" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+  <!-- arms locked overhead (handstand = arms from floor up) -->
+  <line x1="108" y1="184" x2="118" y2="140" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="160" y1="184" x2="150" y2="140" stroke="#f0f0f0" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="118" cy="140" r="4" fill="#e8ff00"/>
+  <circle cx="150" cy="140" r="4" fill="#e8ff00"/>
+  <!-- torso inverted -->
+  <line x1="134" y1="153" x2="134" y2="95" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- legs up against wall -->
+  <line x1="134" y1="95" x2="130" y2="50" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <line x1="134" y1="95" x2="222" y2="75" stroke="#f0f0f0" stroke-width="3" stroke-linecap="round"/>
+  <!-- feet on wall -->
+  <circle cx="222" cy="75" r="5" fill="#e8ff00"/>
+  <!-- AbMat indicator -->
+  <rect x="120" y="184" width="28" height="6" rx="3" fill="#333" stroke="#888" stroke-width="1"/>
+  <text x="134" y="197" fill="#888" font-size="8" font-family="sans-serif" text-anchor="middle">AbMat</text>
+  <!-- ANNOTATIONS -->
+  <line x1="108" y1="184" x2="28" y2="175" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="172" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Manos 30cm</text>
+  <text x="26" y="182" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">de la pared</text>
+  <line x1="134" y1="162" x2="28" y2="150" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="147" fill="#aaa" font-size="9" font-family="sans-serif" text-anchor="end">Triángulo</text>
+  <text x="26" y="157" fill="#aaa" font-size="9" font-family="sans-serif" text-anchor="end">manos + cabeza</text>
+  <line x1="134" y1="120" x2="28" y2="110" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="26" y="107" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">Core activo</text>
+  <text x="26" y="117" fill="#00e676" font-size="9" font-family="sans-serif" text-anchor="end">sin arco</text>
+  <line x1="222" y1="75" x2="262" y2="65" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="264" y="62" fill="#e8ff00" font-size="9" font-family="sans-serif">Pies en</text>
+  <text x="264" y="72" fill="#e8ff00" font-size="9" font-family="sans-serif">la pared</text>
+</svg></div>
+<div id="sdiag-s2o"><svg viewBox="0 0 280 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="so2-body" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#181818"/></radialGradient>
+  <radialGradient id="so2-limb" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#303030"/><stop offset="100%" stop-color="#151515"/></radialGradient>
+  <radialGradient id="so2-skin" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a574"/><stop offset="100%" stop-color="#a0724a"/></radialGradient>
+</defs>
+<rect width="280" height="240" fill="#0d0d0d" rx="10"/>
+<line x1="40" y1="232" x2="240" y2="232" stroke="#1e1e1e" stroke-width="2"/>
+<text x="140" y="16" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#888">PUSH PRESS - OVERHEAD LOCKOUT</text>
+<rect x="44" y="26" width="192" height="7" rx="3.5" fill="#e8ff00"/>
+<rect x="36" y="15" width="10" height="26" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<rect x="234" y="15" width="10" height="26" rx="5" fill="#555" stroke="#e8ff00" stroke-width="1.5"/>
+<polygon points="28,155 36,155 32,162" fill="#ffa500"/>
+<text x="28" y="128" fill="#ffa500" font-size="9" font-family="sans-serif" text-anchor="middle">dip</text>
+<path d="M120 148 C114 168 110 188 108 216 C116 220 128 220 132 216 C132 190 136 170 140 152 Z" fill="url(#so2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="116" cy="212" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M108 214 C106 222 105 228 104 232 C113 232 122 232 126 232 C126 224 124 218 122 214 Z" fill="url(#so2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M142 152 C146 170 152 190 154 216 C158 220 170 220 174 216 C172 188 168 168 160 148 Z" fill="url(#so2-limb)" stroke="#999" stroke-width="1.5"/>
+<ellipse cx="164" cy="212" rx="11" ry="7" fill="#00b4ff" opacity="0.7"/>
+<path d="M154 214 C156 222 158 228 160 232 C165 232 174 232 178 232 C176 226 172 218 168 214 Z" fill="url(#so2-limb)" stroke="#999" stroke-width="1.5"/>
+<path d="M112 72 C108 74 104 84 106 104 L114 150 C126 157 154 157 166 150 L174 104 C176 84 172 74 168 72 Z" fill="url(#so2-body)" stroke="#ccc" stroke-width="2"/>
+<ellipse cx="140" cy="151" rx="22" ry="11" fill="#ff4d00" opacity="0.8"/>
+<ellipse cx="110" cy="76" rx="12" ry="9" fill="url(#so2-body)" stroke="#ccc" stroke-width="1.5"/>
+<ellipse cx="170" cy="76" rx="12" ry="9" fill="url(#so2-body)" stroke="#ccc" stroke-width="1.5"/>
+<path d="M133 82 Q130 116 134 148" fill="none" stroke="#00e676" stroke-width="2" stroke-dasharray="3,3" opacity="0.6"/>
+<path d="M104 74 C90 62 76 50 56 30 C60 24 68 20 74 22 C88 40 102 54 112 70 Z" fill="url(#so2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="58" cy="28" r="8" fill="#e8ff00" opacity="0.9"/>
+<path d="M168 72 C182 60 196 48 216 30 C220 24 228 26 230 32 C212 52 198 64 178 78 Z" fill="url(#so2-limb)" stroke="#bbb" stroke-width="1.5"/>
+<circle cx="218" cy="30" r="8" fill="#e8ff00" opacity="0.9"/>
+<circle cx="140" cy="48" r="18" fill="url(#so2-skin)" stroke="#ddd" stroke-width="2"/>
+<ellipse cx="134" cy="44" rx="3" ry="3.5" fill="#2a1a0a"/>
+<ellipse cx="146" cy="44" rx="3" ry="3.5" fill="#2a1a0a"/>
+<path d="M134 54 Q140 58 146 54" fill="none" stroke="#a07040" stroke-width="1.5"/>
+<path d="M122 46 Q130 34 140 32 Q150 34 158 46 Q152 36 140 34 Q128 36 122 46Z" fill="#2a1a0a"/>
+<rect x="133" y="64" width="14" height="10" rx="4" fill="url(#so2-skin)" stroke="#bbb" stroke-width="1"/>
+<line x1="58" y1="28" x2="20" y2="38" stroke="#e8ff00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="18" y="35" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">Lockout</text>
+<text x="18" y="45" fill="#e8ff00" font-size="9" font-family="sans-serif" text-anchor="end">completo</text>
+<line x1="140" y1="112" x2="262" y2="100" stroke="#00e676" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="97" fill="#00e676" font-size="9" font-family="sans-serif">Core rigido</text>
+<line x1="140" y1="151" x2="262" y2="158" stroke="#ff4d00" stroke-width="1" stroke-dasharray="3,2" opacity="0.8"/>
+<text x="264" y="155" fill="#ff4d00" font-size="9" font-family="sans-serif">Cadera</text>
+<text x="264" y="165" fill="#ff4d00" font-size="9" font-family="sans-serif">extendida</text>
+</svg></div>
+</div>
+</body>
+</html>
