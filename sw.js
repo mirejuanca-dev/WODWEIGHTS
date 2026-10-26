@@ -1,5 +1,5 @@
 const CACHE_NAME = 'wodweights-v2';
-const BLOCKED = true; // Cambiar a true para bloquear acceso
+const BLOCKED = false; // Cambiar a true para bloquear acceso
 
 self.addEventListener('install', e => {
   if (BLOCKED) {
